@@ -48,6 +48,7 @@
 **/.cache/
 **/cache/
 **/.zcompdump*
+.DS_Store
 **/.DS_Store
 **/Thumbs.db
 
@@ -159,6 +160,7 @@
 
 # macOS
 **/.DS_Store
+.DS_STORE
 **/.AppleDouble
 **/.LSOverride
 **/Icon
