@@ -1,0 +1,247 @@
+# Dotfiles .gitignore
+
+# =============================================================================
+# SENSITIVE INFORMATION
+# =============================================================================
+
+# API keys, tokens, passwords
+**/api_keys
+**/tokens
+**/*secret*
+**/*password*
+**/*key*
+**/.env
+**/.env.*
+**/credentials
+**/auth.json
+
+# SSH keys
+**/.ssh/id_*
+**/.ssh/known_hosts
+**/.ssh/authorized_keys
+
+# GPG keys
+**/.gnupg/private-keys-v1.d/
+**/.gnupg/pubring.kbx
+**/.gnupg/secring.gpg
+**/.gnupg/trustdb.gpg
+
+# =============================================================================
+# MACHINE-SPECIFIC FILES
+# =============================================================================
+
+# Hostname-specific configs
+**/config.local
+**/local.conf
+**/*-local.*
+**/*.local
+
+# Machine-specific history files
+**/.zsh_history
+**/.bash_history
+**/.python_history
+**/.node_repl_history
+**/.mysql_history
+**/.psql_history
+
+# Cache directories
+**/.cache/
+**/cache/
+**/.zcompdump*
+**/.DS_Store
+**/Thumbs.db
+
+# Temporary files
+**/*.tmp
+**/*.temp
+**/.tmp/
+**/tmp/
+
+# =============================================================================
+# OH-MY-ZSH SPECIFIC
+# =============================================================================
+
+# Oh My Zsh installation directory (don't track the actual OMZ installation)
+**/.oh-my-zsh/
+!oh-my-zsh-custom/
+
+# Compiled zsh files
+**/*.zwc
+**/.zcompdump*
+
+# Oh My Zsh cache
+**/.oh-my-zsh/cache/
+**/.oh-my-zsh/log/
+
+# Plugin-specific ignores
+**/oh-my-zsh-custom/plugins/*/cache/
+**/oh-my-zsh-custom/plugins/*/.git/
+
+# =============================================================================
+# EDITOR AND IDE FILES
+# =============================================================================
+
+# Vim
+**/.viminfo
+**/.vim/swap/
+**/.vim/backup/
+**/.vim/undo/
+**/.vim/.netrwhist
+**/Session.vim
+
+# VS Code
+**/.vscode/settings.json
+**/.vscode/tasks.json
+**/.vscode/launch.json
+**/.vscode/extensions.json
+
+# JetBrains IDEs
+**/.idea/
+**/*.iml
+**/*.ipr
+**/*.iws
+
+# Sublime Text
+**/*.sublime-workspace
+**/*.sublime-project
+
+# =============================================================================
+# PROGRAMMING LANGUAGE SPECIFIC
+# =============================================================================
+
+# Node.js
+**/node_modules/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/.npm/
+**/.yarn/
+**/package-lock.json
+**/yarn.lock
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/*.so
+**/.Python
+**/pip-log.txt
+**/pip-delete-this-directory.txt
+**/.tox/
+**/.coverage
+**/.pytest_cache/
+**/venv/
+**/env/
+**/.venv/
+**/.env/
+
+# Ruby
+**/.bundle/
+**/vendor/bundle/
+**/.ruby-version
+
+# Go
+**/go.sum
+**/vendor/
+
+# Rust
+**/target/
+**/Cargo.lock
+
+# Java
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+
+# =============================================================================
+# SYSTEM AND APPLICATION FILES
+# =============================================================================
+
+# macOS
+**/.DS_Store
+**/.AppleDouble
+**/.LSOverride
+**/Icon
+**/.Spotlight-V100
+**/.Trashes
+
+# Windows
+**/Thumbs.db
+**/ehthumbs.db
+**/Desktop.ini
+**/$RECYCLE.BIN/
+
+# Linux
+**/.directory
+**/.Trash-*/
+
+# Browser data
+**/BraveSoftware/
+**/Google/Chrome/
+**/Mozilla/Firefox/
+**/chromium/
+
+# =============================================================================
+# LOG FILES
+# =============================================================================
+
+**/*.log
+**/logs/
+**/.logs/
+**/log/
+
+# =============================================================================
+# BACKUP FILES
+# =============================================================================
+
+**/*.backup
+**/*.bak
+**/*.orig
+**/*~
+**/*.swp
+**/*.swo
+
+# Backup files created by our install script
+**/.zshrc.backup
+**/.bashrc.backup
+**/.oh-my-zsh/custom.backup
+
+# =============================================================================
+# DOTFILES SPECIFIC
+# =============================================================================
+
+# Don't track the actual symlinks, only the source files
+# (Uncomment these if you're using symlinks)
+# .zshrc
+# .bashrc
+# .gitconfig
+
+# Local customizations that shouldn't be shared
+**/local/**
+**/private/**
+
+# Machine-specific overrides
+**/*.local.sh
+**/*.private.sh
+
+# Installation tracking
+**/.installed
+**/install.lock
+
+# =============================================================================
+# CUSTOM EXCEPTIONS
+# =============================================================================
+
+# Include important dotfiles even if they start with .
+!/.gitconfig.template
+!/.zshrc.template
+!/oh-my-zsh-custom/**
+
+# Include README files
+!/**/README.md
+!/**/README.txt
+
+# Include example/template files
+!/**/*.example
+!/**/*.template
+!/**/*.sample
