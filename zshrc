@@ -34,9 +34,10 @@ discover_gcloud_sdk() {
   done
   
   # If not found in common locations, try to find via which gcloud
-  local gcloud_path=$(which gcloud 2>/dev/null)
+local gcloud_path=$(which gcloud 2>/dev/null)
   if [[ -n "$gcloud_path" ]]; then
-    local sdk_path=$(dirname "$(dirname "$gcloud_path")")
+    local sdk_path="${gcloud_path%/*}"  # Remove filename
+    sdk_path="${sdk_path%/*}"           # Remove bin directory
     if [[ -d "$sdk_path" && -f "$sdk_path/bin/gcloud" ]]; then
       echo "$sdk_path"
       return 0
@@ -45,7 +46,6 @@ discover_gcloud_sdk() {
   
   return 1
 }
-
 # Set CLOUDSDK_HOME environment variable
 export CLOUDSDK_HOME=$(discover_gcloud_sdk)
 
