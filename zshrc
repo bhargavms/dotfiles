@@ -1,14 +1,61 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
-# Path to your Oh My Zsh installation.
+# Function to discover Google Cloud SDK installation
+discover_gcloud_sdk() {
+  local possible_paths=(
+    "$HOME/google-cloud-sdk"
+    "/usr/local/share/google-cloud-sdk"
+    "/opt/google-cloud-sdk"
+    "/usr/share/google-cloud-sdk"
+    "/Applications/google-cloud-sdk"
+    "$HOME/.local/share/google-cloud-sdk"
+    "$HOME/Library/google-cloud-sdk"
+  )
+  
+  for path in "${possible_paths[@]}"; do
+    if [[ -d "$path" && -f "$path/bin/gcloud" ]]; then
+      echo "$path"
+      return 0
+    fi
+  done
+  
+  # If not found in common locations, try to find via which gcloud
+  local gcloud_path=$(which gcloud 2>/dev/null)
+  if [[ -n "$gcloud_path" ]]; then
+    local sdk_path=$(dirname "$(dirname "$gcloud_path")")
+    if [[ -d "$sdk_path" && -f "$sdk_path/bin/gcloud" ]]; then
+      echo "$sdk_path"
+      return 0
+    fi
+  fi
+  
+  return 1
+}
+
+# Set CLOUDSDK_HOME environment variable
+export CLOUDSDK_HOME=$(discover_gcloud_sdk)
+
+# If you come from bash you might have to change your $PATH.
+export PATH=$HOME/bin:/usr/local/bin:$HOME/Library/Android/sdk/platform-tools:$PATH
+# Only add to PATH if CLOUDSDK_HOME is set and valid
+if [[ -n "$CLOUDSDK_HOME" && -d "$CLOUDSDK_HOME/bin" ]]; then
+  export PATH=$CLOUDSDK_HOME/bin:$PATH
+fi
+export PATH=$HOME/.local/share/nvim/mason/bin:$PATH
+export ANDROID_HOME=$HOME/Library/Android/sdk
+# Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
+# load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -16,8 +63,7 @@ ZSH_THEME="robbyrussell"
 # If set to an empty array, this variable will have no effect.
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+CASE_SENSITIVE="true"
 
 # Uncomment the following line to use hyphen-insensitive completion.
 # Case-sensitive completion must be off. _ and - will be interchangeable.
@@ -26,7 +72,7 @@ ZSH_THEME="robbyrussell"
 # Uncomment one of the following lines to change the auto-update behavior
 # zstyle ':omz:update' mode disabled  # disable automatic updates
 # zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
 # zstyle ':omz:update' frequency 13
@@ -38,7 +84,7 @@ ZSH_THEME="robbyrussell"
 # DISABLE_LS_COLORS="true"
 
 # Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
@@ -52,7 +98,7 @@ ZSH_THEME="robbyrussell"
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
 # much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 # Uncomment the following line if you want to change the command execution time
 # stamp shown in the history command output.
@@ -70,7 +116,7 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git gcloud kubectl kubectx kops macos minikube)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -82,26 +128,35 @@ source $ZSH/oh-my-zsh.sh
 export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='nvim'
-# fi
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='nvim'
+fi
 
 # Compilation flags
-# export ARCHFLAGS="-arch $(uname -m)"
+# export ARCHFLAGS="-arch x86_64"
 
-# Set personal aliases, overriding those provided by Oh My Zsh libs,
-# plugins, and themes. Aliases can be placed here, though Oh My Zsh
-# users are encouraged to define aliases within a top-level file in
-# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
-# - $ZSH_CUSTOM/aliases.zsh
-# - $ZSH_CUSTOM/macos.zsh
+# Set personal aliases, overriding those provided by oh-my-zsh libs,
+# plugins, and themes. Aliases can be placed here, though oh-my-zsh
+# users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+typeset -g POWERLEVEL9K_GCLOUD_COMPLETE_CONTENT_EXPANSION='${P9K_GCLOUD_ACCOUNT} @ ${P9K_GCLOUD_PROJECT_NAME//\%/%%}'
+
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
 
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
@@ -111,17 +166,3 @@ export LDFLAGS="-L$HOME/local/lib"
 export CPPFLAGS="-I$HOME/local/include"
 export PKG_CONFIG_PATH="$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-export PATH="/opt/homebrew/opt/go@1.22/bin:$PATH"
-export PATH=$PATH:~/go/bin
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/bhargav/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/bhargav/Downloads/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/bhargav/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/bhargav/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
-export PATH="$PATH:$HOME/.local/share/nvim/mason/bin"
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
