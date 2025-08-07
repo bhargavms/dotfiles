@@ -1,3 +1,9 @@
 [submodule "/Users/mogra/dotfiles/oh-my-zsh-custom/plugins/zsh-autosuggestions"]
 	path = /Users/mogra/dotfiles/oh-my-zsh-custom/plugins/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
+[submodule "oh-my-zsh-custom/themes/powerlevel10k"]
+	path = oh-my-zsh-custom/themes/powerlevel10k
+	url = https://github.com/romkatv/powerlevel10k.git
+[submodule "wezterm"]
+	path = wezterm
+	url = https://github.com/bhargavms/wezterm.git
