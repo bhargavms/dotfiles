@@ -16,5 +16,8 @@ cp -r $DOTFILES_DIR/wezterm $HOME/.config/
 ## install fonts
 bash ./install_fonts.sh
 
+## install jetbrains/android studio configurations
+ln -sf "$DOTFILES_DIR/ideavimrc" "$HOME/.ideavimrc"
+
 echo "Installation Complete!"
 

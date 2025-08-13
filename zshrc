@@ -176,3 +176,16 @@ export LDFLAGS="-L$HOME/local/lib"
 export CPPFLAGS="-I$HOME/local/include"
 export PKG_CONFIG_PATH="$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
+export GOROOT=$HOME/.local/go/go
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export GOROOT=$HOME/.local/go/go
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export PATH=$PATH:$HOME/.local/bin
+export LUA_PATH='$HOME/.local/share/lua/5.4.6/?.lua;$HOME/.local/share/lua/5.4.6/?/init.lua;'
+export LUA_CPATH='$HOME/.local/lib/lua/5.4.6/?.so;'
+
+export SDKMAN_DIR="$(brew --prefix sdkman-cli)/libexec"
+[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+
