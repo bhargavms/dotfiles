@@ -23,4 +23,16 @@ if [ -d "$HOME/.oh-my-zsh/custom" ] && [ ! -L "$HOME/.oh-my-zsh/custom" ]; then
     echo "Backed up oh-my-zsh custom"
 fi
 
-echo "Backup complete! Files saved to: $BACKUP_DIR" 
+# Backup WezTerm config if it exists and is not a symlink
+if [ -e "$HOME/.config/wezterm" ] && [ ! -L "$HOME/.config/wezterm" ]; then
+    cp -r "$HOME/.config/wezterm" "$BACKUP_DIR/"
+    echo "Backed up WezTerm config"
+fi
+
+# Backup .ideavimrc if it exists and is not a symlink
+if [ -f "$HOME/.ideavimrc" ] && [ ! -L "$HOME/.ideavimrc" ]; then
+    cp "$HOME/.ideavimrc" "$BACKUP_DIR/.ideavimrc"
+    echo "Backed up .ideavimrc"
+fi
+
+echo "Backup complete! Files saved to: $BACKUP_DIR"

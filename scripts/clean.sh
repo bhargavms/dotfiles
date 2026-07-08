@@ -19,4 +19,16 @@ if [ -L "$HOME/.oh-my-zsh/custom" ]; then
     rm "$HOME/.oh-my-zsh/custom"
 fi
 
-echo "Cleanup complete!" 
+# Remove WezTerm symlink if it exists
+if [ -L "$HOME/.config/wezterm" ]; then
+    echo "Removing WezTerm config symlink..."
+    rm "$HOME/.config/wezterm"
+fi
+
+# Remove .ideavimrc symlink if it exists
+if [ -L "$HOME/.ideavimrc" ]; then
+    echo "Removing .ideavimrc symlink..."
+    rm "$HOME/.ideavimrc"
+fi
+
+echo "Cleanup complete!"

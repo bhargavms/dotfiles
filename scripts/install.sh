@@ -1,23 +1,42 @@
 #!/bin/bash
 
-DOTFILES_DIR="$HOME/dotfiles"
+set -euo pipefail
 
-# Create symlinks
-echo "Creating sym links for zshrc and oh-my-zsh custom"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+link_file() {
+    local source="$1"
+    local target="$2"
+
+    mkdir -p "$(dirname "$target")"
+    ln -sfn "$source" "$target"
+    echo "Linked $target -> $source"
+}
+
+link_dir() {
+    local source="$1"
+    local target="$2"
+
+    mkdir -p "$(dirname "$target")"
+    rm -rf "$target"
+    ln -sfn "$source" "$target"
+    echo "Linked $target -> $source"
+}
+
+echo "Creating symlinks from $DOTFILES_DIR"
+
 ## oh my zsh setup
-ln -sf "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
-rm -rf "$HOME/.oh-my-zsh/custom"
-cp -r "$DOTFILES_DIR/oh-my-zsh-custom" "$HOME/.oh-my-zsh/custom"
+link_file "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
+link_dir "$DOTFILES_DIR/oh-my-zsh-custom" "$HOME/.oh-my-zsh/custom"
 
 ## wezterm
-mkdir -p $HOME/.config/
-cp -r $DOTFILES_DIR/wezterm $HOME/.config/
+link_dir "$DOTFILES_DIR/wezterm" "$HOME/.config/wezterm"
 
 ## install fonts
-bash ./install_fonts.sh
+bash "$SCRIPT_DIR/install_fonts.sh"
 
 ## install jetbrains/android studio configurations
-ln -sf "$DOTFILES_DIR/ideavimrc" "$HOME/.ideavimrc"
+link_file "$DOTFILES_DIR/ideavimrc" "$HOME/.ideavimrc"
 
 echo "Installation Complete!"
-

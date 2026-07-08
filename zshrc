@@ -50,13 +50,19 @@ local gcloud_path=$(which gcloud 2>/dev/null)
 export CLOUDSDK_HOME=$(discover_gcloud_sdk)
 
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:/usr/local/bin:$HOME/Library/Android/sdk/platform-tools:$PATH
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$HOME/bin:/usr/local/bin:$ANDROID_HOME/platform-tools:$PATH
+if [[ -d "$ANDROID_HOME/cmdline-tools/latest/bin" ]]; then
+  export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+fi
+if [[ -d "$HOME/Library/Python/3.9/bin" ]]; then
+  export PATH=$HOME/Library/Python/3.9/bin:$PATH
+fi
 # Only add to PATH if CLOUDSDK_HOME is set and valid
 if [[ -n "$CLOUDSDK_HOME" && -d "$CLOUDSDK_HOME/bin" ]]; then
   export PATH=$CLOUDSDK_HOME/bin:$PATH
 fi
 export PATH=$HOME/.local/share/nvim/mason/bin:$PATH
-export ANDROID_HOME=$HOME/Library/Android/sdk
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -165,13 +171,17 @@ export SDKMAN_DIR="$HOME/.sdkman"
 
 typeset -g POWERLEVEL9K_GCLOUD_COMPLETE_CONTENT_EXPANSION='${P9K_GCLOUD_ACCOUNT} @ ${P9K_GCLOUD_PROJECT_NAME//\%/%%}'
 
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
+if command -v rbenv &> /dev/null; then
+  export PATH="$HOME/.rbenv/bin:$PATH"
+  eval "$(rbenv init -)"
+fi
 
 export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
+if command -v pyenv &> /dev/null; then
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
+fi
 export LDFLAGS="-L$HOME/local/lib"
 export CPPFLAGS="-I$HOME/local/include"
 export PKG_CONFIG_PATH="$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH"
@@ -183,9 +193,11 @@ export GOROOT=$HOME/.local/go/go
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$HOME/.luarocks/bin
 export LUA_PATH='$HOME/.local/share/lua/5.4.6/?.lua;$HOME/.local/share/lua/5.4.6/?/init.lua;'
 export LUA_CPATH='$HOME/.local/lib/lua/5.4.6/?.so;'
 
-export SDKMAN_DIR="$(brew --prefix sdkman-cli)/libexec"
-[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
-
+if command -v brew &> /dev/null && brew --prefix sdkman-cli &> /dev/null; then
+  export SDKMAN_DIR="$(brew --prefix sdkman-cli)/libexec"
+  [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+fi
