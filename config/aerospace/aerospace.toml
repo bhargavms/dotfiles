@@ -11,15 +11,23 @@ after-startup-command = [
 start-at-login = true
 auto-reload-config = true
 
-enable-normalization-flatten-containers = true
+# false = Omarchy dwindle-style tree (half, then split the focused half)
+# true = every window in one skinny row
+enable-normalization-flatten-containers = false
 enable-normalization-opposite-orientation-for-nested-containers = true
 
 accordion-padding = 30
 default-root-container-layout = 'tiles'
-default-root-container-orientation = 'auto'
+default-root-container-orientation = 'horizontal'
 
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 automatically-unhide-macos-hidden-apps = true
+
+# WezTerm is floating and follows you to every workspace (AeroSpace has no real sticky)
+exec-on-workspace-change = [
+    '/bin/bash',
+    '/Users/bhargav/.config/aerospace/bin/wezterm-follow.sh',
+]
 
 persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'scratch']
 
@@ -40,6 +48,8 @@ on-window-detected = [
     { if = 'test %{app-bundle-id} = com.valvesoftware.steam', run = 'layout floating' },
     { if = 'test %{app-bundle-id} = net.battle.app', run = 'layout floating' },
     { if = 'test %{app-name} ~= "(?i)world of warcraft|battle.net|steam"', run = 'layout floating' },
+    { if = 'test %{app-bundle-id} = com.github.wez.wezterm', run = 'layout floating' },
+    { if = 'true', run = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/tile-grid.sh' },
 ]
 
 [mode.main.binding]
@@ -48,9 +58,11 @@ ctrl-alt-w = 'close'
 ctrl-alt-q = 'close'
 
 # Tiling / floating / layout
+# Never cycle through accordion. Super+J only flips left-right vs top-bottom.
 ctrl-alt-t = 'layout floating tiling'
-ctrl-alt-j = 'layout tiles horizontal vertical'
-ctrl-alt-l = 'layout tiles accordion'
+ctrl-alt-j = ['layout tiles', 'layout horizontal vertical']
+# Super+L: snap this workspace to a 2x2 grid
+ctrl-alt-l = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/tile-grid.sh'
 ctrl-alt-o = 'layout floating'
 
 # Fullscreen
@@ -103,18 +115,20 @@ ctrl-alt-tab = 'workspace --wrap-around next'
 ctrl-alt-shift-tab = 'workspace --wrap-around prev'
 ctrl-alt-esc = 'workspace-back-and-forth'
 
-# Scratchpad
+# Scratchpad workspace (other windows)
 ctrl-alt-s = 'workspace scratch'
-ctrl-alt-backtick = 'workspace scratch'
 ctrl-alt-shift-s = 'move-node-to-workspace scratch'
 ctrl-alt-shift-backtick = 'move-node-to-workspace scratch'
+
+# Shared floating WezTerm — Super+` to show, again to hide
+ctrl-alt-backtick = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/wezterm-toggle.sh'
 
 # Cycle windows on this workspace (Omarchy Alt+Tab)
 alt-tab = 'focus --boundaries-action wrap-around-the-workspace dfs-next'
 alt-shift-tab = 'focus --boundaries-action wrap-around-the-workspace dfs-prev'
 
 # Launchers
-ctrl-alt-enter = 'exec-and-forget open -na WezTerm'
+ctrl-alt-enter = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/wezterm-toggle.sh'
 ctrl-alt-shift-enter = 'exec-and-forget open -na Arc'
 ctrl-alt-shift-f = 'exec-and-forget open -a Finder'
 ctrl-alt-shift-n = 'exec-and-forget open -na Cursor'
