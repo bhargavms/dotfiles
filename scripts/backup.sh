@@ -1,38 +1,43 @@
 #!/bin/bash
 
-# Dotfiles backup script
-# This script creates timestamped backups of existing dotfiles
+set -euo pipefail
 
-set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "Creating backup of existing dotfiles..."
 
-# Create backup directory with timestamp
-BACKUP_DIR="backup/$(date +%Y%m%d_%H%M%S)"
+BACKUP_DIR="$DOTFILES_DIR/backup/$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
-# Backup .zshrc if it exists and is not a symlink
-if [ -f "$HOME/.zshrc" ] && [ ! -L "$HOME/.zshrc" ]; then
-    cp "$HOME/.zshrc" "$BACKUP_DIR/.zshrc"
-    echo "Backed up .zshrc"
-fi
+backup_file() {
+    local source="$1"
+    local dest_name="$2"
 
-# Backup oh-my-zsh custom if it exists and is not a symlink
-if [ -d "$HOME/.oh-my-zsh/custom" ] && [ ! -L "$HOME/.oh-my-zsh/custom" ]; then
-    cp -r "$HOME/.oh-my-zsh/custom" "$BACKUP_DIR/"
-    echo "Backed up oh-my-zsh custom"
-fi
+    if [ -f "$source" ] && [ ! -L "$source" ]; then
+        mkdir -p "$(dirname "$BACKUP_DIR/$dest_name")"
+        cp "$source" "$BACKUP_DIR/$dest_name"
+        echo "Backed up $source"
+    fi
+}
 
-# Backup WezTerm config if it exists and is not a symlink
-if [ -e "$HOME/.config/wezterm" ] && [ ! -L "$HOME/.config/wezterm" ]; then
-    cp -r "$HOME/.config/wezterm" "$BACKUP_DIR/"
-    echo "Backed up WezTerm config"
-fi
+backup_dir() {
+    local source="$1"
+    local dest_name="$2"
 
-# Backup .ideavimrc if it exists and is not a symlink
-if [ -f "$HOME/.ideavimrc" ] && [ ! -L "$HOME/.ideavimrc" ]; then
-    cp "$HOME/.ideavimrc" "$BACKUP_DIR/.ideavimrc"
-    echo "Backed up .ideavimrc"
-fi
+    if [ -d "$source" ] && [ ! -L "$source" ]; then
+        mkdir -p "$(dirname "$BACKUP_DIR/$dest_name")"
+        cp -R "$source" "$BACKUP_DIR/$dest_name"
+        echo "Backed up $source"
+    fi
+}
+
+backup_file "$HOME/.zshrc" ".zshrc"
+backup_dir "$HOME/.oh-my-zsh/custom" "custom"
+backup_dir "$HOME/.config/wezterm" "wezterm"
+backup_dir "$HOME/.config/karabiner" "karabiner"
+backup_dir "$HOME/.config/aerospace" "aerospace"
+backup_file "$HOME/.config/gh/config.yml" "gh/config.yml"
+backup_file "$HOME/.ideavimrc" ".ideavimrc"
 
 echo "Backup complete! Files saved to: $BACKUP_DIR"

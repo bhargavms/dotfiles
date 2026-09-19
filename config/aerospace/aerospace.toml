@@ -1,0 +1,147 @@
+# Omarchy-style AeroSpace config for macOS
+# Super = Caps Lock (Karabiner maps it to Ctrl+Option)
+# Bindings follow https://omarchy.org/manual/hotkeys/
+
+config-version = 2
+
+after-startup-command = [
+    'exec-and-forget /opt/homebrew/opt/borders/bin/borders active_color=0xff7dc4e4 inactive_color=0xff45475a width=4.0 hidpi=on'
+]
+
+start-at-login = true
+auto-reload-config = true
+
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+accordion-padding = 30
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+automatically-unhide-macos-hidden-apps = true
+
+persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'scratch']
+
+key-mapping.preset = 'qwerty'
+
+gaps.inner.horizontal = 8
+gaps.inner.vertical = 8
+gaps.outer.left = 8
+gaps.outer.bottom = 8
+gaps.outer.top = 8
+gaps.outer.right = 8
+
+# Float settings, VPN, and games so they are not forced into tiles
+on-window-detected = [
+    { if = 'test %{app-bundle-id} = com.apple.systempreferences', run = 'layout floating' },
+    { if = 'test %{app-bundle-id} = com.apple.AppStore', run = 'layout floating' },
+    { if = 'test %{app-bundle-id} = com.nordvpn.macos', run = 'layout floating' },
+    { if = 'test %{app-bundle-id} = com.valvesoftware.steam', run = 'layout floating' },
+    { if = 'test %{app-bundle-id} = net.battle.app', run = 'layout floating' },
+    { if = 'test %{app-name} ~= "(?i)world of warcraft|battle.net|steam"', run = 'layout floating' },
+]
+
+[mode.main.binding]
+# Close
+ctrl-alt-w = 'close'
+ctrl-alt-q = 'close'
+
+# Tiling / floating / layout
+ctrl-alt-t = 'layout floating tiling'
+ctrl-alt-j = 'layout tiles horizontal vertical'
+ctrl-alt-l = 'layout tiles accordion'
+ctrl-alt-o = 'layout floating'
+
+# Fullscreen
+ctrl-alt-f = 'fullscreen'
+
+# Focus (Omarchy: Super + arrows)
+ctrl-alt-left = 'focus left'
+ctrl-alt-down = 'focus down'
+ctrl-alt-up = 'focus up'
+ctrl-alt-right = 'focus right'
+
+# Swap (Omarchy: Super + Shift + arrows)
+ctrl-alt-shift-left = 'swap left'
+ctrl-alt-shift-down = 'swap down'
+ctrl-alt-shift-up = 'swap up'
+ctrl-alt-shift-right = 'swap right'
+
+# Resize
+ctrl-alt-minus = 'resize width +50'
+ctrl-alt-equal = 'resize width -50'
+ctrl-alt-shift-minus = 'resize height -50'
+ctrl-alt-shift-equal = 'resize height +50'
+
+# Workspaces 1-10
+ctrl-alt-1 = 'workspace 1'
+ctrl-alt-2 = 'workspace 2'
+ctrl-alt-3 = 'workspace 3'
+ctrl-alt-4 = 'workspace 4'
+ctrl-alt-5 = 'workspace 5'
+ctrl-alt-6 = 'workspace 6'
+ctrl-alt-7 = 'workspace 7'
+ctrl-alt-8 = 'workspace 8'
+ctrl-alt-9 = 'workspace 9'
+ctrl-alt-0 = 'workspace 10'
+
+# Move window to workspace
+ctrl-alt-shift-1 = 'move-node-to-workspace 1'
+ctrl-alt-shift-2 = 'move-node-to-workspace 2'
+ctrl-alt-shift-3 = 'move-node-to-workspace 3'
+ctrl-alt-shift-4 = 'move-node-to-workspace 4'
+ctrl-alt-shift-5 = 'move-node-to-workspace 5'
+ctrl-alt-shift-6 = 'move-node-to-workspace 6'
+ctrl-alt-shift-7 = 'move-node-to-workspace 7'
+ctrl-alt-shift-8 = 'move-node-to-workspace 8'
+ctrl-alt-shift-9 = 'move-node-to-workspace 9'
+ctrl-alt-shift-0 = 'move-node-to-workspace 10'
+
+# Workspace cycle / back
+ctrl-alt-tab = 'workspace --wrap-around next'
+ctrl-alt-shift-tab = 'workspace --wrap-around prev'
+ctrl-alt-esc = 'workspace-back-and-forth'
+
+# Scratchpad
+ctrl-alt-s = 'workspace scratch'
+ctrl-alt-backtick = 'workspace scratch'
+ctrl-alt-shift-s = 'move-node-to-workspace scratch'
+ctrl-alt-shift-backtick = 'move-node-to-workspace scratch'
+
+# Cycle windows on this workspace (Omarchy Alt+Tab)
+alt-tab = 'focus --boundaries-action wrap-around-the-workspace dfs-next'
+alt-shift-tab = 'focus --boundaries-action wrap-around-the-workspace dfs-prev'
+
+# Launchers
+ctrl-alt-enter = 'exec-and-forget open -na WezTerm'
+ctrl-alt-shift-enter = 'exec-and-forget open -na Arc'
+ctrl-alt-shift-f = 'exec-and-forget open -a Finder'
+ctrl-alt-shift-n = 'exec-and-forget open -na Cursor'
+ctrl-alt-space = '''exec-and-forget osascript -e 'tell application "System Events" to keystroke space using command down' '''
+
+# Move workspace between monitors
+ctrl-alt-shift-period = 'move-workspace-to-monitor --wrap-around next'
+ctrl-alt-shift-comma = 'move-workspace-to-monitor --wrap-around prev'
+
+# Disable accidental app hide
+cmd-h = []
+cmd-alt-h = []
+
+# Reload / service mode
+ctrl-alt-shift-esc = ['reload-config', 'mode main']
+ctrl-alt-semicolon = 'mode service'
+
+[mode.service.binding]
+esc = ['reload-config', 'mode main']
+r = ['flatten-workspace-tree', 'mode main']
+f = ['layout floating tiling', 'mode main']
+backspace = ['close-all-windows-but-current', 'mode main']
+h = ['join-with left', 'mode main']
+j = ['join-with down', 'mode main']
+k = ['join-with up', 'mode main']
+l = ['join-with right', 'mode main']
+left = ['join-with left', 'mode main']
+down = ['join-with down', 'mode main']
+up = ['join-with up', 'mode main']
+right = ['join-with right', 'mode main']

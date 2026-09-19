@@ -207,6 +207,7 @@
 **/.zshrc.backup
 **/.bashrc.backup
 **/.oh-my-zsh/custom.backup
+/backup/
 
 # =============================================================================
 # DOTFILES SPECIFIC
@@ -229,6 +230,19 @@
 # Installation tracking
 **/.installed
 **/install.lock
+
+# =============================================================================
+# XDG CONFIG RUNTIME / SECRETS
+# =============================================================================
+
+# GitHub CLI auth (keep config.yml tracked)
+config/gh/hosts.yml
+
+# Karabiner writes these next to karabiner.json
+config/karabiner/automatic_backups/
+
+# WezTerm workspace session state
+config/wezterm/workspace-states/
 
 # =============================================================================
 # CUSTOM EXCEPTIONS
