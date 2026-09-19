@@ -123,10 +123,15 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # see 'man strftime' for details.
 # HIST_STAMPS="mm/dd/yyyy"
 
+# Directory of this zshrc after resolving the ~/.zshrc symlink.
+# %x = file currently being sourced; :A = absolute path following
+# symlinks; :h = parent directory (this repo's root).
+DOTFILES_DIR="${${(%):-%x}:A:h}"
+
 # Load this repo's aliases/plugins/themes without replacing ~/.oh-my-zsh/custom.
 # Symlinking that directory breaks `omz update` (git cannot autostash
 # tracked files such as custom/example.zsh that sit beyond the symlink).
-ZSH_CUSTOM="${${(%):-%x}:A:h}/oh-my-zsh-custom"
+ZSH_CUSTOM="$DOTFILES_DIR/oh-my-zsh-custom"
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
