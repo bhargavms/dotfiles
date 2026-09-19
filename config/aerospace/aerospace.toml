@@ -58,27 +58,25 @@ ctrl-alt-w = 'close'
 ctrl-alt-q = 'close'
 
 # Tiling / floating / layout
-# Never cycle through accordion. Super+J only flips left-right vs top-bottom.
 ctrl-alt-t = 'layout floating tiling'
-ctrl-alt-j = ['layout tiles', 'layout horizontal vertical']
-# Super+L: snap this workspace to a 2x2 grid
-ctrl-alt-l = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/tile-grid.sh'
+ctrl-alt-slash = ['layout tiles', 'layout horizontal vertical']
+ctrl-alt-g = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/tile-grid.sh'
 ctrl-alt-o = 'layout floating'
 
 # Fullscreen
 ctrl-alt-f = 'fullscreen'
 
-# Focus (Omarchy: Super + arrows)
-ctrl-alt-left = 'focus left'
-ctrl-alt-down = 'focus down'
-ctrl-alt-up = 'focus up'
-ctrl-alt-right = 'focus right'
+# Focus
+ctrl-alt-h = 'focus left'
+ctrl-alt-j = 'focus down'
+ctrl-alt-k = 'focus up'
+ctrl-alt-l = 'focus right'
 
-# Swap (Omarchy: Super + Shift + arrows)
-ctrl-alt-shift-left = 'swap left'
-ctrl-alt-shift-down = 'swap down'
-ctrl-alt-shift-up = 'swap up'
-ctrl-alt-shift-right = 'swap right'
+# Swap
+ctrl-alt-left = 'swap left'
+ctrl-alt-down = 'swap down'
+ctrl-alt-up = 'swap up'
+ctrl-alt-right = 'swap right'
 
 # Resize
 ctrl-alt-minus = 'resize width +50'
