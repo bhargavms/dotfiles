@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
-# Keep the floating WezTerm on whatever workspace is focused.
+# If the bottom WezTerm strip is open, keep it on the focused workspace.
 set -euo pipefail
+# shellcheck source=wezterm-dock.sh
+source "$(dirname "$0")/wezterm-dock.sh"
 
 ws="${AEROSPACE_FOCUSED_WORKSPACE:-}"
 if [[ -z "$ws" ]]; then
   ws="$(aerospace list-workspaces --focused)"
 fi
-[[ -z "$ws" ]] && exit 0
+[[ -z "$ws" || "$ws" == "scratch" ]] && exit 0
 
-while IFS= read -r line; do
-  id="${line%% *}"
-  app="${line#* }"
-  if [[ "$app" == "com.github.wez.wezterm" ]]; then
-    aerospace move-node-to-workspace --window-id "$id" "$ws" || true
-    aerospace layout floating --window-id "$id" || true
-  fi
-done < <(aerospace list-windows --all --format '%{window-id} %{app-bundle-id}')
+id="$(wezterm_id || true)"
+[[ -z "${id:-}" ]] && exit 0
+
+cur="$(wezterm_workspace "$id")"
+[[ "$cur" == "scratch" ]] && exit 0
+
+aerospace move-node-to-workspace --window-id "$id" "$ws" || true
+aerospace layout floating --window-id "$id" || true
+place_wezterm || true

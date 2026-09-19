@@ -36,6 +36,7 @@ key-mapping.preset = 'qwerty'
 gaps.inner.horizontal = 8
 gaps.inner.vertical = 8
 gaps.outer.left = 8
+# rewritten by wezterm-toggle.sh while the bottom strip is open
 gaps.outer.bottom = 8
 gaps.outer.top = 8
 gaps.outer.right = 8
@@ -49,7 +50,6 @@ on-window-detected = [
     { if = 'test %{app-bundle-id} = net.battle.app', run = 'layout floating' },
     { if = 'test %{app-name} ~= "(?i)world of warcraft|battle.net|steam"', run = 'layout floating' },
     { if = 'test %{app-bundle-id} = com.github.wez.wezterm', run = 'layout floating' },
-    { if = 'true', run = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/tile-grid.sh' },
 ]
 
 [mode.main.binding]

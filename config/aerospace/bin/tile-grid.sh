@@ -66,18 +66,25 @@ aerospace flatten-workspace-tree
 aerospace layout --root tiles || true
 aerospace layout --root horizontal || true
 
-join_right() {
-  local out
-  out="$(aerospace join-with right --window-id "$1" 2>&1)" || true
-  [[ "$out" != *"No windows"* ]]
+join_with() {
+  local id="$1"
+  local dir out
+  for dir in right down left up; do
+    out="$(aerospace join-with "$dir" --window-id "$id" 2>&1)" || true
+    if [[ "$out" != *"No windows"* && "$out" != *"ERROR"* ]]; then
+      return 0
+    fi
+  done
+  return 1
 }
 
 if (( n == 3 )); then
-  join_right "${ids[1]}" || aerospace join-with down --window-id "${ids[1]}" || true
+  # left half + stacked right half
+  join_with "${ids[1]}" || true
   exit 0
 fi
 
 if (( n >= 4 )); then
-  join_right "${ids[0]}" || true
-  join_right "${ids[2]}" || true
+  join_with "${ids[0]}" || true
+  join_with "${ids[2]}" || true
 fi

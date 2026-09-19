@@ -145,6 +145,51 @@ config.keys = {
   },
 }
 
+-- AeroSpace bottom dock: shell writes point geometry; we convert to WezTerm pixels.
+local dock_file = os.getenv('HOME') .. '/.config/aerospace/.wezterm-dock'
+local last_applied = ''
 
+local function apply_dock(window)
+  local f = io.open(dock_file, 'r')
+  if not f then
+    return
+  end
+  local data = f:read('*a')
+  f:close()
+  local x, y, w, h = data:match('^(%S+)%s+(%S+)%s+(%S+)%s+(%S+)')
+  if not x then
+    return
+  end
+  x, y, w, h = tonumber(x), tonumber(y), tonumber(w), tonumber(h)
+
+  local gui = window
+  if window.gui_window then
+    gui = window:gui_window()
+  end
+  if not gui then
+    return
+  end
+
+  local screens = wezterm.gui.screens()
+  local screen = screens.active or screens.main
+  local scale = (screen and screen.width or w) / w
+  local gap = h * scale
+  local chrome = 28 * scale
+  local inner_h = math.max(80, gap - chrome)
+  local px = x * scale
+  local py = y * scale
+  local pw = w * scale
+
+  local dims = gui:get_dimensions()
+  if last_applied == data and dims and math.abs(dims.pixel_height - inner_h) < 48 then
+    return
+  end
+  last_applied = data
+  gui:set_inner_size(pw, inner_h)
+  gui:set_position(px, py)
+end
+
+wezterm.on('update-status', apply_dock)
+wezterm.on('window-focus-changed', apply_dock)
 
 return config
