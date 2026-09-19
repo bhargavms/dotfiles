@@ -33,7 +33,6 @@ backup_dir() {
 }
 
 backup_file "$HOME/.zshrc" ".zshrc"
-backup_dir "$HOME/.oh-my-zsh/custom" "custom"
 backup_dir "$HOME/.config/wezterm" "wezterm"
 backup_dir "$HOME/.config/karabiner" "karabiner"
 backup_dir "$HOME/.config/aerospace" "aerospace"

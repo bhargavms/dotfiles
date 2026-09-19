@@ -45,11 +45,27 @@ link_dir() {
 echo "Initializing submodules in $DOTFILES_DIR"
 git -C "$DOTFILES_DIR" submodule update --init --recursive
 
+restore_oh_my_zsh_custom() {
+    local custom="$HOME/.oh-my-zsh/custom"
+
+    if [ -L "$custom" ]; then
+        rm "$custom"
+        echo "Removed symlink $custom (that path must stay Oh My Zsh's own tree)"
+    fi
+
+    if [ ! -e "$custom" ] && [ -d "$HOME/.oh-my-zsh/.git" ]; then
+        git -C "$HOME/.oh-my-zsh" checkout -- custom
+        echo "Restored $custom from the Oh My Zsh git repo"
+    fi
+
+    mkdir -p "$custom"
+}
+
 echo "Creating symlinks from $DOTFILES_DIR"
 
-## oh my zsh setup
+## oh my zsh setup (ZSH_CUSTOM in zshrc points at this repo; do not replace custom/)
 link_file "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
-link_dir "$DOTFILES_DIR/oh-my-zsh-custom" "$HOME/.oh-my-zsh/custom"
+restore_oh_my_zsh_custom
 
 ## XDG config (never nvim, never the whole gh/ directory)
 link_dir "$DOTFILES_DIR/config/wezterm" "$HOME/.config/wezterm"

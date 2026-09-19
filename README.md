@@ -7,7 +7,7 @@ XDG apps live under `config/` and map 1:1 onto `~/.config`. Shell and IdeaVim fi
 ## Prerequisites
 
 - Git
-- [Oh My Zsh](https://ohmyz.sh/) at `~/.oh-my-zsh` (this repo only replaces `custom/`)
+- [Oh My Zsh](https://ohmyz.sh/) at `~/.oh-my-zsh` (`zshrc` sets `ZSH_CUSTOM` at this repo; `~/.oh-my-zsh/custom` is left alone so `omz update` works)
 - Homebrew (for `brew shellenv` in `zshrc`)
 
 Install also downloads [0xProto Nerd Font](https://github.com/ryanoasis/nerd-fonts) into `~/Library/Fonts`.
@@ -29,7 +29,6 @@ After the first shell with Powerlevel10k, run `p10k configure`. `~/.p10k.zsh` is
 | Source | Target |
 |--------|--------|
 | `zshrc` | `~/.zshrc` |
-| `oh-my-zsh-custom/` | `~/.oh-my-zsh/custom` |
 | `ideavimrc` | `~/.ideavimrc` |
 | `config/wezterm/` | `~/.config/wezterm` |
 | `config/karabiner/` | `~/.config/karabiner` |
@@ -38,6 +37,7 @@ After the first shell with Powerlevel10k, run `p10k configure`. `~/.p10k.zsh` is
 
 ## Not managed
 
+- **`~/.oh-my-zsh/custom`** — Oh My Zsh's own tree. Aliases, powerlevel10k, and zsh plugins load via `ZSH_CUSTOM` → `oh-my-zsh-custom/` in this repo. Replacing `custom/` with a symlink makes `omz update` fail (`custom/example.zsh` is beyond a symbolic link).
 - **Neovim** — separate repo at [`my-nvim`](https://github.com/bhargavms/my-nvim); clone it to `~/.config/nvim`. Install refuses to touch that path.
 - **`~/.config/gh/hosts.yml`** — local GitHub CLI auth; only `config.yml` is linked.
 - Caches and app state under `~/.config` (qBittorrent, tfenv, and similar).
@@ -56,7 +56,7 @@ Karabiner automatic backups and WezTerm `workspace-states/` are gitignored if th
 │   ├── karabiner/karabiner.json
 │   ├── aerospace/aerospace.toml
 │   └── gh/config.yml
-├── oh-my-zsh-custom/          # aliases + plugin/theme submodules
+├── oh-my-zsh-custom/          # ZSH_CUSTOM: aliases + plugin/theme submodules
 └── scripts/
 ```
 

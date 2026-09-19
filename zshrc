@@ -123,8 +123,10 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # see 'man strftime' for details.
 # HIST_STAMPS="mm/dd/yyyy"
 
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
+# Load this repo's aliases/plugins/themes without replacing ~/.oh-my-zsh/custom.
+# Symlinking that directory breaks `omz update` (git cannot autostash
+# tracked files such as custom/example.zsh that sit beyond the symlink).
+ZSH_CUSTOM="${${(%):-%x}:A:h}/oh-my-zsh-custom"
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
