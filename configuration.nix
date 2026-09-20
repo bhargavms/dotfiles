@@ -62,6 +62,7 @@
       "kubernetes-cli"
       "lefthook"
       "luacheck"
+      "pre-commit"
       "tailscale"
       "tree-sitter-cli"
       "xcbeautify"
