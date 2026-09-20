@@ -203,10 +203,6 @@
 **/*.swp
 **/*.swo
 
-# Backup files created by our install script
-**/.zshrc.backup
-**/.bashrc.backup
-**/.oh-my-zsh/custom.backup
 /backup/
 
 # =============================================================================

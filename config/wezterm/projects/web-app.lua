@@ -1,5 +1,7 @@
 -- Example project-specific configuration for a web application
--- This file demonstrates how to create custom workspace configurations for specific projects
+-- Loaded when project_info.name is "web-app" (see projects/<name>.lua)
+
+local wezterm = require 'wezterm'
 
 local M = {}
 
@@ -7,7 +9,7 @@ local M = {}
 M.config = {
   name = "web-app",
   description = "Modern web application workspace",
-  
+
   -- Custom layout for this project
   layout = {
     description = "Web app development layout with frontend, backend, and testing",
@@ -80,14 +82,14 @@ M.config = {
       }
     }
   },
-  
+
   -- Custom environment variables for this project
   env = {
     NODE_ENV = "development",
     DEBUG = "app:*",
     PORT = "3000"
   },
-  
+
   -- Custom keybindings for this workspace
   keybindings = {
     {
@@ -110,7 +112,7 @@ M.config = {
       end
     }
   },
-  
+
   -- Custom status line for this workspace
   status = {
     left = function()
@@ -129,13 +131,13 @@ M.config = {
       }
     end
   },
-  
+
   -- Project-specific startup commands
   startup_commands = {
     "npm install", -- Ensure dependencies are installed
     "git fetch",   -- Fetch latest changes
   },
-  
+
   -- Cleanup commands when leaving workspace
   cleanup_commands = {
     -- Kill any running servers
@@ -147,18 +149,18 @@ M.config = {
 -- Apply project-specific configuration
 function M.apply(window, pane, project_info)
   local layouts = require('workspaces.layouts')
-  
+
   -- Add custom layout
   layouts.add_layout(M.config.name, M.config.layout)
-  
+
   -- Apply the layout
   layouts.apply_layout(M.config.name, project_info, window, pane)
-  
+
   -- Set environment variables
   for key, value in pairs(M.config.env) do
     pane:send_text('export ' .. key .. '=' .. value .. '\n')
   end
-  
+
   -- Run startup commands
   for _, command in ipairs(M.config.startup_commands) do
     pane:send_text(command .. '\n')
@@ -173,4 +175,4 @@ function M.cleanup()
   end
 end
 
-return M 
+return M

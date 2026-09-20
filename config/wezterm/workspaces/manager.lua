@@ -9,7 +9,8 @@ local M = {}
 
 -- Configuration defaults
 local config = {
-  auto_create = true,
+  auto_create = false,
+  run_post_create_commands = false,
   project_markers = { ".git", "package.json", "Cargo.toml", "go.mod", "Makefile", "requirements.txt", "pom.xml" },
   layouts = {
     nodejs = "web-development",
@@ -35,17 +36,17 @@ function M.setup(user_config)
       config[k] = v
     end
   end
-  
+
   -- Initialize components
   projects.init(config)
   layouts.init(config)
   switcher.init(config)
-  
+
   -- Restore workspace states if enabled
   if config.restore_on_startup then
     M.restore_all_states()
   end
-  
+
   -- Set up auto workspace creation if enabled
   if config.auto_create then
     M.setup_auto_creation()
@@ -76,11 +77,45 @@ function M.workspace_exists(name)
   return false
 end
 
+local function shell_escape(path)
+  if not path then
+    return ''
+  end
+  return path:gsub("'", "'\\''")
+end
+
+-- Load projects/<name>.lua when present (name matches sanitized project_info.name)
+function M.load_project_module(project_name)
+  if not project_name or project_name == '' then
+    return nil
+  end
+  local path = wezterm.config_dir .. '/projects/' .. project_name .. '.lua'
+  local file = io.open(path, 'r')
+  if not file then
+    return nil
+  end
+  file:close()
+
+  local chunk, err = loadfile(path)
+  if not chunk then
+    wezterm.log_error('Failed to load project config ' .. path .. ': ' .. tostring(err))
+    return nil
+  end
+  local ok, mod = pcall(chunk)
+  if not ok then
+    wezterm.log_error('Failed to run project config ' .. path .. ': ' .. tostring(mod))
+    return nil
+  end
+  return mod
+end
+
 -- Create a new project workspace
 function M.create_project_workspace(project_info, window, pane)
   local workspace_name = project_info.name
   local project_type = project_info.type or 'default'
-  
+  local layout_name = config.layouts[project_type] or config.layouts.default
+  local custom = M.load_project_module(workspace_name)
+
   -- Switch to new workspace
   window:perform_action(
     wezterm.action.SwitchToWorkspace {
@@ -88,21 +123,25 @@ function M.create_project_workspace(project_info, window, pane)
     },
     pane
   )
-  
-  -- Apply project layout
-  local layout_name = config.layouts[project_type] or config.layouts.default
-  layouts.apply_layout(layout_name, project_info, window, pane)
-  
-  -- Save workspace state
+
+  if custom and type(custom.apply) == 'function' then
+    custom.apply(window, pane, project_info)
+    if custom.config and custom.config.layout then
+      layout_name = custom.config.name or layout_name
+    end
+  else
+    layouts.apply_layout(layout_name, project_info, window, pane)
+  end
+
   workspace_states[workspace_name] = {
     project_info = project_info,
     layout = layout_name,
     created_at = os.time(),
     last_accessed = os.time()
   }
-  
+
   current_workspace = workspace_name
-  M.save_workspace_state(workspace_name)
+  M.save_workspace_state(workspace_name, window)
 end
 
 -- Show workspace switcher
@@ -122,16 +161,15 @@ function M.switch_to_workspace(workspace_name, window, pane)
     },
     pane
   )
-  
+
   current_workspace = workspace_name
-  
+
   -- Update last accessed time
   if workspace_states[workspace_name] then
     workspace_states[workspace_name].last_accessed = os.time()
   end
-  
-  -- Restore workspace state if available
-  M.restore_workspace_state(workspace_name)
+
+  M.restore_workspace_state(workspace_name, window)
 end
 
 -- Create a new workspace manually
@@ -142,26 +180,26 @@ function M.create_new(window, pane)
       action = wezterm.action_callback(function(window, pane, line)
         if line and line ~= '' then
           local workspace_name = line
-          
+
           window:perform_action(
             wezterm.action.SwitchToWorkspace {
               name = workspace_name,
             },
             pane
           )
-          
+
           -- Initialize with default layout
           layouts.apply_layout(config.layouts.default, nil, window, pane)
-          
+
           workspace_states[workspace_name] = {
             project_info = nil,
             layout = config.layouts.default,
             created_at = os.time(),
             last_accessed = os.time()
           }
-          
+
           current_workspace = workspace_name
-          M.save_workspace_state(workspace_name)
+          M.save_workspace_state(workspace_name, window)
         end
       end),
     },
@@ -172,7 +210,7 @@ end
 -- Rename current workspace
 function M.rename_workspace(window, pane)
   local current = window:active_workspace()
-  
+
   window:perform_action(
     wezterm.action.PromptInputLine {
       description = 'Enter new name for workspace "' .. current .. '":',
@@ -194,7 +232,7 @@ function M.show_info(window, pane)
   local current = window:active_workspace()
   local state = workspace_states[current]
   local info = "Workspace: " .. current .. "\n"
-  
+
   if state then
     if state.project_info then
       info = info .. "Project: " .. (state.project_info.name or "Unknown") .. "\n"
@@ -205,14 +243,14 @@ function M.show_info(window, pane)
     info = info .. "Created: " .. os.date("%Y-%m-%d %H:%M:%S", state.created_at) .. "\n"
     info = info .. "Last Accessed: " .. os.date("%Y-%m-%d %H:%M:%S", state.last_accessed) .. "\n"
   end
-  
+
   window:toast_notification('Workspace Info', info, nil, 8000)
 end
 
 -- Quick project switch using fuzzy finder
 function M.quick_project_switch(window, pane)
   local project_dirs = projects.find_all_projects()
-  
+
   local choices = {}
   for _, project in ipairs(project_dirs) do
     table.insert(choices, {
@@ -220,7 +258,7 @@ function M.quick_project_switch(window, pane)
       label = project.name .. " (" .. project.type .. ") - " .. project.path,
     })
   end
-  
+
   window:perform_action(
     wezterm.action.InputSelector {
       action = wezterm.action_callback(function(window, pane, id, label)
@@ -242,80 +280,138 @@ end
 -- Save current workspace state
 function M.save_current_state(window, pane)
   local workspace_name = window:active_workspace()
-  M.save_workspace_state(workspace_name)
+  M.save_workspace_state(workspace_name, window)
   window:toast_notification('WezTerm', 'Workspace state saved: ' .. workspace_name, nil, 2000)
 end
 
 -- Save workspace state to file
-function M.save_workspace_state(workspace_name)
+function M.save_workspace_state(workspace_name, window)
   if not config.save_state then
     return
   end
-  
-  local state_file = wezterm.config_dir .. "/workspace-states/" .. workspace_name .. ".json"
-  local state = workspace_states[workspace_name]
-  
-  if state then
-    -- Add current tab/pane information
-    state.tabs = M.get_current_tab_layout()
-    
-    local file = io.open(state_file, "w")
-    if file then
-      file:write(wezterm.json_encode(state))
-      file:close()
-    end
+
+  local state_dir = wezterm.config_dir .. '/workspace-states'
+  os.execute("mkdir -p '" .. shell_escape(state_dir) .. "'")
+
+  local state_file = state_dir .. '/' .. workspace_name .. '.json'
+  local state = workspace_states[workspace_name] or {}
+
+  if window then
+    state.tabs = M.get_current_tab_layout(window)
   end
+
+  local file = io.open(state_file, 'w')
+  if file then
+    file:write(wezterm.json_encode(state))
+    file:close()
+  end
+  workspace_states[workspace_name] = state
 end
 
 -- Restore workspace state from file
-function M.restore_workspace_state(workspace_name)
-  if not config.save_state then
+function M.restore_workspace_state(workspace_name, window)
+  if not config.save_state or not window then
     return
   end
-  
-  local state_file = wezterm.config_dir .. "/workspace-states/" .. workspace_name .. ".json"
-  local file = io.open(state_file, "r")
-  
+
+  local state_file = wezterm.config_dir .. '/workspace-states/' .. workspace_name .. '.json'
+  local file = io.open(state_file, 'r')
+
   if file then
-    local content = file:read("*all")
+    local content = file:read('*all')
     file:close()
-    
+
     local state = wezterm.json_parse(content)
     if state then
       workspace_states[workspace_name] = state
-      -- Restore tab layout if available
       if state.tabs then
-        M.restore_tab_layout(state.tabs)
+        M.restore_tab_layout(window, state.tabs)
       end
     end
   end
 end
 
--- Restore all workspace states on startup
+-- Restore saved workspace metadata on startup (mux layout restore happens on switch)
 function M.restore_all_states()
-  local state_dir = wezterm.config_dir .. "/workspace-states"
-  
-  -- Create state directory if it doesn't exist
-  os.execute("mkdir -p " .. state_dir)
-  
-  -- This is a simplified version - full implementation would scan directory
-  -- WezTerm Lua has limited file system access
+  local state_dir = wezterm.config_dir .. '/workspace-states'
+  os.execute("mkdir -p '" .. shell_escape(state_dir) .. "'")
+
+  local handle = io.popen("ls -1 '" .. shell_escape(state_dir) .. "'/*.json 2>/dev/null")
+  if not handle then
+    return
+  end
+
+  for line in handle:lines() do
+    local file = io.open(line, 'r')
+    if file then
+      local content = file:read('*all')
+      file:close()
+      local state = wezterm.json_parse(content)
+      if state and state.project_info and state.project_info.name then
+        workspace_states[state.project_info.name] = state
+      else
+        local name = line:match('/([^/]+)%.json$')
+        if name and state then
+          workspace_states[name] = state
+        end
+      end
+    end
+  end
+  handle:close()
 end
 
--- Get current tab layout (simplified)
-function M.get_current_tab_layout()
-  -- This would capture current tab/pane structure
-  -- Simplified for this implementation
+function M.get_current_tab_layout(window)
+  local tabs = {}
+  for _, tab in ipairs(window:tabs()) do
+    local tab_data = {
+      title = tab:tab_title(),
+      panes = {},
+    }
+    for _, p in ipairs(tab:panes()) do
+      local cwd = p:get_current_working_dir()
+      table.insert(tab_data.panes, {
+        cwd = cwd and cwd.file_path or nil,
+      })
+    end
+    table.insert(tabs, tab_data)
+  end
   return {
     timestamp = os.time(),
-    note = "Tab layout capture would be implemented here"
+    tabs = tabs,
   }
 end
 
--- Restore tab layout (simplified)
-function M.restore_tab_layout(layout_data)
-  -- This would restore the exact tab/pane structure
-  -- Simplified for this implementation
+-- Best-effort: tab titles, extra tabs, and pane working directories (not split geometry)
+function M.restore_tab_layout(window, layout_data)
+  if not layout_data or not layout_data.tabs or #layout_data.tabs == 0 then
+    return
+  end
+
+  local active_pane = window:active_pane()
+
+  for i, tab_data in ipairs(layout_data.tabs) do
+    local tab
+    if i == 1 then
+      tab = window:active_tab()
+    else
+      local cwd = tab_data.panes and tab_data.panes[1] and tab_data.panes[1].cwd
+      tab = window:spawn_tab { cwd = cwd }
+    end
+
+    if tab_data.title and tab_data.title ~= '' then
+      tab:set_title(tab_data.title)
+    end
+
+    local panes = tab:panes()
+    for j, pane_data in ipairs(tab_data.panes or {}) do
+      local p = panes[j]
+      if p and pane_data.cwd and pane_data.cwd ~= '' then
+        p:send_text("cd '" .. shell_escape(pane_data.cwd) .. "'\n")
+      end
+    end
+  end
+
+  window:perform_action(wezterm.action.ActivateTab(0), active_pane)
 end
 
-return M 
+return M

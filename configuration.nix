@@ -1,4 +1,4 @@
-{ user, ... }:
+{ user, pkgs, ... }:
 
 {
   nix.enable = false;
@@ -11,6 +11,11 @@
     home = "/Users/${user}";
   };
   system.stateVersion = 6;
+
+  fonts.packages = [
+    pkgs.nerd-fonts._0xproto
+  ];
+
   system.defaults = {
     NSGlobalDomain = {
       AppleInterfaceStyle = "Dark";

@@ -18,15 +18,15 @@ end
 function M.show(window, pane, callback)
   local workspaces = wezterm.mux.get_workspace_names()
   local current_workspace = window:active_workspace()
-  
+
   if #workspaces == 0 then
     window:toast_notification('WezTerm', 'No workspaces available', nil, 2000)
     return
   end
-  
+
   -- Build choices for the InputSelector
   local choices = {}
-  
+
   -- Add current workspace first (marked as current)
   for _, workspace in ipairs(workspaces) do
     if workspace == current_workspace then
@@ -37,7 +37,7 @@ function M.show(window, pane, callback)
       break
     end
   end
-  
+
   -- Add recent workspaces next
   for _, workspace in ipairs(recent_workspaces) do
     if workspace ~= current_workspace then
@@ -49,7 +49,7 @@ function M.show(window, pane, callback)
           break
         end
       end
-      
+
       if exists then
         table.insert(choices, {
           id = workspace,
@@ -58,7 +58,7 @@ function M.show(window, pane, callback)
       end
     end
   end
-  
+
   -- Add remaining workspaces
   for _, workspace in ipairs(workspaces) do
     if workspace ~= current_workspace and not M.is_in_recent(workspace) then
@@ -68,7 +68,7 @@ function M.show(window, pane, callback)
       })
     end
   end
-  
+
   -- Show the InputSelector
   window:perform_action(
     wezterm.action.InputSelector {
@@ -106,10 +106,10 @@ function M.add_to_recent(workspace)
       break
     end
   end
-  
+
   -- Add to front
   table.insert(recent_workspaces, 1, workspace)
-  
+
   -- Limit size
   if #recent_workspaces > max_recent then
     table.remove(recent_workspaces, #recent_workspaces)
@@ -120,20 +120,20 @@ end
 function M.show_workspace_info(window, pane)
   local workspaces = wezterm.mux.get_workspace_names()
   local current_workspace = window:active_workspace()
-  
+
   local choices = {}
   for _, workspace in ipairs(workspaces) do
     local label = workspace
     if workspace == current_workspace then
       label = "• " .. workspace .. " (current)"
     end
-    
+
     table.insert(choices, {
       id = workspace,
       label = label,
     })
   end
-  
+
   window:perform_action(
     wezterm.action.InputSelector {
       action = wezterm.action_callback(function(window, pane, id, label)
@@ -152,10 +152,10 @@ end
 -- Show detailed information about a workspace
 function M.show_detailed_info(workspace_name, window)
   local info = "Workspace: " .. workspace_name .. "\n"
-  
+
   -- Get workspace tabs and panes count
   local saved_workspace = window:active_workspace()
-  
+
   -- Switch temporarily to get info (this is not ideal but necessary)
   window:perform_action(
     wezterm.action.SwitchToWorkspace {
@@ -163,16 +163,16 @@ function M.show_detailed_info(workspace_name, window)
     },
     window:active_pane()
   )
-  
+
   local tabs = window:tabs()
   info = info .. "Tabs: " .. #tabs .. "\n"
-  
+
   local total_panes = 0
   for _, tab in ipairs(tabs) do
     total_panes = total_panes + #tab:panes()
   end
   info = info .. "Total Panes: " .. total_panes .. "\n"
-  
+
   -- Switch back
   if saved_workspace ~= workspace_name then
     window:perform_action(
@@ -182,14 +182,14 @@ function M.show_detailed_info(workspace_name, window)
       window:active_pane()
     )
   end
-  
+
   window:toast_notification('Workspace Info', info, nil, 5000)
 end
 
 -- Show quick workspace actions
 function M.show_workspace_actions(window, pane)
   local current_workspace = window:active_workspace()
-  
+
   local choices = {
     {
       id = "switch",
@@ -216,7 +216,7 @@ function M.show_workspace_actions(window, pane)
       label = "📁 Quick Project Switch",
     }
   }
-  
+
   window:perform_action(
     wezterm.action.InputSelector {
       action = wezterm.action_callback(function(window, pane, id, label)
@@ -260,14 +260,14 @@ function M.create_new_workspace(window, pane)
       action = wezterm.action_callback(function(window, pane, line)
         if line and line ~= '' then
           local workspace_name = line:gsub("[^%w%-_]", "-"):lower()
-          
+
           window:perform_action(
             wezterm.action.SwitchToWorkspace {
               name = workspace_name,
             },
             pane
           )
-          
+
           M.add_to_recent(workspace_name)
           window:toast_notification('WezTerm', 'Created workspace: ' .. workspace_name, nil, 2000)
         end
@@ -281,7 +281,7 @@ end
 function M.show_layout_selector(window, pane)
   local layouts = require('workspaces.layouts')
   local available_layouts = layouts.get_available_layouts()
-  
+
   local choices = {}
   for _, layout in ipairs(available_layouts) do
     table.insert(choices, {
@@ -289,7 +289,7 @@ function M.show_layout_selector(window, pane)
       label = layout.name .. " - " .. layout.description .. " (" .. layout.tabs_count .. " tabs)",
     })
   end
-  
+
   window:perform_action(
     wezterm.action.InputSelector {
       action = wezterm.action_callback(function(window, pane, id, label)
@@ -321,11 +321,11 @@ end
 -- Set max recent workspaces to track
 function M.set_max_recent(max)
   max_recent = max
-  
+
   -- Trim existing list if necessary
   while #recent_workspaces > max_recent do
     table.remove(recent_workspaces, #recent_workspaces)
   end
 end
 
-return M 
+return M

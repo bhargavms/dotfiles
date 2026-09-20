@@ -25,7 +25,7 @@ local workspaces = require('workspaces.manager')
 -- Basic configuration
 config.default_prog = { '/bin/zsh', '-l' }
 config.selection_word_boundary = ' \t\n{}[]()"\'`,;:@│┃*…$'
-config.debug_key_events = true
+config.debug_key_events = false
 config.color_scheme = scheme_for_appearance(get_appearance())
 config.font = wezterm.font '0xProto Nerd Font'
 config.audible_bell = 'Disabled'
@@ -37,17 +37,20 @@ config.send_composed_key_when_right_alt_is_pressed = false
 -- Remap Caps Lock to Ctrl (only within WezTerm)
 config.use_dead_keys = false
 
--- Leader key for workspace management  
+-- Leader key for workspace management
 config.leader = { key = 'a', mods = 'CTRL', timeout_milliseconds = 1000 }
 
 -- Initialize workspace management
 workspaces.setup({
-  -- Auto-create workspaces when navigating to projects
-  auto_create = true,
-  
+  -- Use Leader + p to create/switch project workspaces (no silent auto-create)
+  auto_create = false,
+
+  -- Layout templates define post_create hooks; leave off unless you want auto npm/cargo/jupyter
+  run_post_create_commands = false,
+
   -- Project detection patterns
   project_markers = { ".git", "package.json", "Cargo.toml", "go.mod", "Makefile", "requirements.txt", "pom.xml" },
-  
+
   -- Default layouts by project type
   layouts = {
     nodejs = "web-development",
@@ -56,11 +59,11 @@ workspaces.setup({
     python = "data-science",
     default = "general-development"
   },
-  
+
   -- Workspace persistence
   save_state = true,
   restore_on_startup = true,
-  
+
   -- Smart features
   auto_cd_to_project_root = true,
   restore_previous_session = true
@@ -76,7 +79,7 @@ config.keys = {
       workspaces.show_switcher(window, pane)
     end),
   },
-  
+
   -- Create new workspace (LEADER + W)
   {
     key = 'W',
@@ -85,7 +88,7 @@ config.keys = {
       workspaces.create_new(window, pane)
     end),
   },
-  
+
   -- Rename current workspace (LEADER + r)
   {
     key = 'r',
@@ -94,7 +97,7 @@ config.keys = {
       workspaces.rename_workspace(window, pane)
     end),
   },
-  
+
   -- Show workspace info (LEADER + i)
   {
     key = 'i',
@@ -103,7 +106,7 @@ config.keys = {
       workspaces.show_info(window, pane)
     end),
   },
-  
+
   -- Quick project navigation (LEADER + p)
   {
     key = 'p',
@@ -112,7 +115,7 @@ config.keys = {
       workspaces.quick_project_switch(window, pane)
     end),
   },
-  
+
   -- Save workspace state (LEADER + s)
   {
     key = 's',
@@ -121,7 +124,7 @@ config.keys = {
       workspaces.save_current_state(window, pane)
     end),
   },
-  
+
   -- Standard tab/pane management
   {
     key = 'c',

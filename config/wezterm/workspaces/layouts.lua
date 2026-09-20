@@ -1,4 +1,5 @@
 local wezterm = require 'wezterm'
+local io = require 'io'
 
 local M = {}
 
@@ -70,7 +71,7 @@ local layout_templates = {
       }
     }
   },
-  
+
   ["systems-programming"] = {
     description = "Systems programming layout for Rust, C/C++",
     tabs = {
@@ -129,7 +130,7 @@ local layout_templates = {
       }
     }
   },
-  
+
   ["backend-service"] = {
     description = "Backend service layout for Go, Python APIs",
     tabs = {
@@ -184,7 +185,7 @@ local layout_templates = {
       }
     }
   },
-  
+
   ["data-science"] = {
     description = "Data science layout for Python, Jupyter, analysis",
     tabs = {
@@ -226,7 +227,7 @@ local layout_templates = {
       }
     }
   },
-  
+
   ["general-development"] = {
     description = "General purpose development layout",
     tabs = {
@@ -284,14 +285,14 @@ function M.apply_layout(layout_name, project_info, window, pane)
     wezterm.log_error("Layout not found: " .. layout_name)
     return false
   end
-  
+
   local workspace_name = window:active_workspace()
   local project_path = project_info and project_info.path or pane:get_current_working_dir().file_path
-  
+
   -- Apply each tab in the layout
   for i, tab_config in ipairs(layout.tabs) do
     local tab = nil
-    
+
     if i == 1 then
       -- Use the current tab for the first tab
       tab = window:active_tab()
@@ -307,12 +308,12 @@ function M.apply_layout(layout_name, project_info, window, pane)
         tab:set_title(tab_config.name)
       end
     end
-    
+
     -- Apply pane configuration
     M.apply_pane_layout(tab, tab_config.panes, project_path, project_info)
-    
-    -- Execute post-create commands
-    if tab_config.post_create then
+
+    -- Execute post-create commands (opt-in via run_post_create_commands)
+    if config.run_post_create_commands and tab_config.post_create then
       local command = tab_config.post_create(tab, project_info)
       if command then
         -- Send the command to the first pane of the tab
@@ -323,10 +324,10 @@ function M.apply_layout(layout_name, project_info, window, pane)
       end
     end
   end
-  
+
   -- Switch back to the first tab
   window:perform_action(wezterm.action.ActivateTab(0), pane)
-  
+
   return true
 end
 
@@ -335,25 +336,25 @@ function M.apply_pane_layout(tab, panes_config, project_path, project_info)
   if not panes_config or #panes_config == 0 then
     return
   end
-  
+
   -- The first pane already exists (the tab's default pane)
   local current_pane = tab:active_pane()
-  
+
   -- Set working directory for the first pane
   if panes_config[1].cwd_relative and project_path then
     current_pane:send_text("cd '" .. project_path .. "'\n")
   end
-  
+
   -- Execute command for the first pane
   if panes_config[1].command then
     current_pane:send_text(panes_config[1].command .. "\n")
   end
-  
+
   -- Create additional panes
   for i = 2, #panes_config do
     local pane_config = panes_config[i]
     local split_direction = pane_config.split
-    
+
     local new_pane = nil
     if split_direction == "horizontal" then
       new_pane = current_pane:split {
@@ -375,18 +376,18 @@ function M.apply_pane_layout(tab, panes_config, project_path, project_info)
         cwd = pane_config.cwd_relative and project_path or nil,
       }
     end
-    
+
     if new_pane then
       -- Set working directory
       if pane_config.cwd_relative and project_path then
         new_pane:send_text("cd '" .. project_path .. "'\n")
       end
-      
+
       -- Execute command
       if pane_config.command then
         new_pane:send_text(pane_config.command .. "\n")
       end
-      
+
       current_pane = new_pane
     end
   end
@@ -402,7 +403,7 @@ function M.get_available_layouts()
       tabs_count = #layout.tabs
     })
   end
-  
+
   table.sort(layouts, function(a, b) return a.name < b.name end)
   return layouts
 end
@@ -427,17 +428,17 @@ function M.validate_layout(layout_config)
   if not layout_config.tabs or #layout_config.tabs == 0 then
     return false, "Layout must have at least one tab"
   end
-  
+
   for i, tab in ipairs(layout_config.tabs) do
     if not tab.name then
       return false, "Tab " .. i .. " must have a name"
     end
-    
+
     if not tab.panes or #tab.panes == 0 then
       return false, "Tab " .. tab.name .. " must have at least one pane"
     end
   end
-  
+
   return true, "Layout is valid"
 end
 
@@ -447,14 +448,14 @@ function M.capture_current_layout(window)
     description = "Captured layout from " .. window:active_workspace(),
     tabs = {}
   }
-  
+
   for i, tab in ipairs(window:tabs()) do
     local tab_config = {
       name = tab:tab_title() or ("Tab " .. i),
       cwd_relative = true,
       panes = {}
     }
-    
+
     for j, pane in ipairs(tab:panes()) do
       local pane_config = {
         command = nil, -- Can't capture running commands
@@ -463,11 +464,11 @@ function M.capture_current_layout(window)
       }
       table.insert(tab_config.panes, pane_config)
     end
-    
+
     table.insert(layout.tabs, tab_config)
   end
-  
+
   return layout
 end
 
-return M 
+return M

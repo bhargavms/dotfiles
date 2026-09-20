@@ -110,6 +110,7 @@ local project_patterns = {
 
 -- Common project search paths
 local common_project_paths = {
+  os.getenv("HOME") .. "/github",
   os.getenv("HOME") .. "/Projects",
   os.getenv("HOME") .. "/Code",
   os.getenv("HOME") .. "/Development",
@@ -151,31 +152,31 @@ function M.detect_project(path)
   if not path or not dir_exists(path) then
     return nil
   end
-  
+
   -- Clean up path
   path = path:gsub("file://", ""):gsub("/$", "")
-  
+
   for _, pattern in ipairs(project_patterns) do
     for _, marker in ipairs(pattern.markers) do
       local marker_path = path .. "/" .. marker
       if file_exists(marker_path) or dir_exists(marker_path) then
         local project_name = nil
-        
+
         -- Try to extract name using parser
         if pattern.parser then
           project_name = pattern.parser(path)
         end
-        
+
         -- Fallback to directory name
         if not project_name then
           project_name = path:match('([^/]+)$')
         end
-        
+
         -- Clean up project name
         if project_name then
           project_name = project_name:gsub("[^%w%-_]", "-"):lower()
         end
-        
+
         return {
           name = project_name,
           type = pattern.type,
@@ -186,7 +187,7 @@ function M.detect_project(path)
       end
     end
   end
-  
+
   return nil
 end
 
@@ -194,7 +195,7 @@ end
 function M.find_all_projects()
   local projects = {}
   local seen_paths = {}
-  
+
   -- Search in common project directories
   for _, search_path in ipairs(common_project_paths) do
     if dir_exists(search_path) then
@@ -207,25 +208,25 @@ function M.find_all_projects()
       end
     end
   end
-  
+
   return projects
 end
 
 -- Scan a directory for projects up to a certain depth
 function M.scan_directory_for_projects(directory, max_depth)
   local projects = {}
-  
+
   if max_depth <= 0 or not dir_exists(directory) then
     return projects
   end
-  
+
   -- Check if current directory is a project
   local project_info = M.detect_project(directory)
   if project_info then
     table.insert(projects, project_info)
     return projects -- Don't recurse into subdirectories if this is already a project
   end
-  
+
   -- List subdirectories and scan them
   local handle = io.popen("find '" .. directory .. "' -maxdepth 1 -type d 2>/dev/null")
   if handle then
@@ -239,7 +240,7 @@ function M.scan_directory_for_projects(directory, max_depth)
     end
     handle:close()
   end
-  
+
   return projects
 end
 
@@ -257,10 +258,10 @@ function M.is_within_project(path, project_path)
   if not path or not project_path then
     return false
   end
-  
+
   path = path:gsub("file://", ""):gsub("/$", "")
   project_path = project_path:gsub("file://", ""):gsub("/$", "")
-  
+
   return path:find(project_path, 1, true) == 1
 end
 
@@ -269,20 +270,20 @@ function M.find_project_root(start_path)
   if not start_path then
     return nil
   end
-  
+
   local current_path = start_path:gsub("file://", ""):gsub("/$", "")
-  
+
   -- Walk up the directory tree looking for project markers
   while current_path and current_path ~= "/" do
     local project_info = M.detect_project(current_path)
     if project_info then
       return project_info
     end
-    
+
     -- Move up one directory
     current_path = current_path:match("(.+)/[^/]+$")
   end
-  
+
   return nil
 end
 
@@ -304,14 +305,14 @@ function M.get_supported_types()
   for _, pattern in ipairs(project_patterns) do
     types[pattern.type] = true
   end
-  
+
   local type_list = {}
   for type_name, _ in pairs(types) do
     table.insert(type_list, type_name)
   end
-  
+
   table.sort(type_list)
   return type_list
 end
 
-return M 
+return M
