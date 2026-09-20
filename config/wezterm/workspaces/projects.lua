@@ -108,18 +108,21 @@ local project_patterns = {
   }
 }
 
--- Common project search paths
-local common_project_paths = {
-  os.getenv("HOME") .. "/github",
-  os.getenv("HOME") .. "/Projects",
-  os.getenv("HOME") .. "/Code",
-  os.getenv("HOME") .. "/Development",
-  os.getenv("HOME") .. "/work",
-  os.getenv("HOME") .. "/src",
-  os.getenv("HOME") .. "/repos",
-  "/usr/local/src",
-  "/opt"
-}
+local function home_dir()
+  return os.getenv('HOME') or ''
+end
+
+local function github_root()
+  return config.github_root or (home_dir() .. '/github')
+end
+
+local function projects_root()
+  return config.projects_dir or (home_dir() .. '/Projects')
+end
+
+local function shell_escape(path)
+  return path:gsub("'", "'\\''")
+end
 
 -- Initialize the projects module
 function M.init(user_config)
@@ -138,7 +141,7 @@ end
 
 -- Check if directory exists
 local function dir_exists(path)
-  local handle = io.popen("test -d '" .. path .. "' && echo 'exists'")
+  local handle = io.popen("test -d '" .. shell_escape(path) .. "' && echo 'exists'")
   if handle then
     local result = handle:read("*all")
     handle:close()
@@ -191,55 +194,63 @@ function M.detect_project(path)
   return nil
 end
 
--- Find all projects in common locations
+local function list_immediate_subdirs(directory)
+  local dirs = {}
+  if not dir_exists(directory) then
+    return dirs
+  end
+
+  local handle = io.popen(
+    "find '"
+      .. shell_escape(directory)
+      .. "' -mindepth 1 -maxdepth 1 -type d 2>/dev/null"
+  )
+  if handle then
+    for line in handle:lines() do
+      table.insert(dirs, line)
+    end
+    handle:close()
+  end
+
+  table.sort(dirs)
+  return dirs
+end
+
+local function add_project(projects, seen_paths, project_info)
+  if project_info and not seen_paths[project_info.path] then
+    seen_paths[project_info.path] = true
+    table.insert(projects, project_info)
+  end
+end
+
+-- ~/github/<owner>/<repo> and ~/Projects/<project>
 function M.find_all_projects()
   local projects = {}
   local seen_paths = {}
 
-  -- Search in common project directories
-  for _, search_path in ipairs(common_project_paths) do
-    if dir_exists(search_path) then
-      local projects_in_path = M.scan_directory_for_projects(search_path, 2) -- max depth 2
-      for _, project in ipairs(projects_in_path) do
-        if not seen_paths[project.path] then
-          table.insert(projects, project)
-          seen_paths[project.path] = true
+  local gh = github_root()
+  if dir_exists(gh) then
+    for _, owner_path in ipairs(list_immediate_subdirs(gh)) do
+      local owner = owner_path:match('([^/]+)$')
+      for _, repo_path in ipairs(list_immediate_subdirs(owner_path)) do
+        local info = M.detect_project(repo_path)
+        if info and owner then
+          info.github_owner = owner
+          info.github_repo = repo_path:match('([^/]+)$')
         end
+        add_project(projects, seen_paths, info)
       end
     end
   end
 
-  return projects
-end
-
--- Scan a directory for projects up to a certain depth
-function M.scan_directory_for_projects(directory, max_depth)
-  local projects = {}
-
-  if max_depth <= 0 or not dir_exists(directory) then
-    return projects
+  local pr = projects_root()
+  for _, project_path in ipairs(list_immediate_subdirs(pr)) do
+    add_project(projects, seen_paths, M.detect_project(project_path))
   end
 
-  -- Check if current directory is a project
-  local project_info = M.detect_project(directory)
-  if project_info then
-    table.insert(projects, project_info)
-    return projects -- Don't recurse into subdirectories if this is already a project
-  end
-
-  -- List subdirectories and scan them
-  local handle = io.popen("find '" .. directory .. "' -maxdepth 1 -type d 2>/dev/null")
-  if handle then
-    for line in handle:lines() do
-      if line ~= directory then -- Skip the current directory
-        local sub_projects = M.scan_directory_for_projects(line, max_depth - 1)
-        for _, sub_project in ipairs(sub_projects) do
-          table.insert(projects, sub_project)
-        end
-      end
-    end
-    handle:close()
-  end
+  table.sort(projects, function(a, b)
+    return a.path < b.path
+  end)
 
   return projects
 end

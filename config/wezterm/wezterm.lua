@@ -48,7 +48,10 @@ workspaces.setup({
   -- Layout templates define post_create hooks; leave off unless you want auto npm/cargo/jupyter
   run_post_create_commands = false,
 
-  -- Project detection patterns
+  -- Project picker roots: ~/github/<owner>/<repo> and ~/Projects/*
+  github_root = os.getenv('HOME') .. '/github',
+  projects_dir = os.getenv('HOME') .. '/Projects',
+
   project_markers = { ".git", "package.json", "Cargo.toml", "go.mod", "Makefile", "requirements.txt", "pom.xml" },
 
   -- Default layouts by project type
@@ -145,6 +148,28 @@ config.keys = {
     key = 'h',
     mods = 'LEADER',
     action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' },
+  },
+
+  -- Pane focus (vim-style; replaces Ctrl+Shift+arrow defaults for these keys)
+  {
+    key = 'h',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.ActivatePaneDirection 'Left',
+  },
+  {
+    key = 'j',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.ActivatePaneDirection 'Down',
+  },
+  {
+    key = 'k',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.ActivatePaneDirection 'Up',
+  },
+  {
+    key = 'l',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.ActivatePaneDirection 'Right',
   },
 }
 

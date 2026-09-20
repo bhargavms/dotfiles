@@ -255,7 +255,13 @@ function M.quick_project_switch(window, pane)
   for _, project in ipairs(project_dirs) do
     table.insert(choices, {
       id = project.path,
-      label = project.name .. " (" .. project.type .. ") - " .. project.path,
+          label = (project.github_owner and (project.github_owner .. '/' .. project.github_repo .. ' — ')
+            or '')
+            .. project.name
+            .. ' ('
+            .. project.type
+            .. ') — '
+            .. project.path,
     })
   end
 

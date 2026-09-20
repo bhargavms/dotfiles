@@ -71,12 +71,14 @@ workspaces.setup({
 })
 ```
 
-## Project discovery paths
+## Project discovery (`Leader + p`)
 
-Scanned (max depth 2) for `Leader + p`:
+| Layout | Scanned paths |
+|--------|----------------|
+| GitHub | `~/github/<owner>/<repo>` — each repo folder under an owner |
+| Other | `~/Projects/*` — each top-level folder |
 
-- `~/github`, `~/Projects`, `~/Code`, `~/Development`, `~/work`, `~/src`, `~/repos`
-- `/usr/local/src`, `/opt`
+Override in `wezterm.lua`: `github_root`, `projects_dir`.
 
 ## Custom project file
 
