@@ -16,14 +16,6 @@ check_link() {
     fi
 }
 
-check_link "$HOME/.zshrc" ".zshrc"
-if [ -L "$HOME/.oh-my-zsh/custom" ]; then
-    echo "✗ oh-my-zsh custom is a symlink (breaks omz update): $(readlink "$HOME/.oh-my-zsh/custom")"
-elif [ -d "$HOME/.oh-my-zsh/custom" ]; then
-    echo "✓ oh-my-zsh custom is a real directory"
-else
-    echo "✗ oh-my-zsh custom is missing"
-fi
 check_link "$HOME/.config/wezterm" "WezTerm config"
 check_link "$HOME/.config/karabiner" "Karabiner config"
 check_link "$HOME/.config/aerospace" "AeroSpace config"

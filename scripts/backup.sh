@@ -32,7 +32,6 @@ backup_dir() {
     fi
 }
 
-backup_file "$HOME/.zshrc" ".zshrc"
 backup_dir "$HOME/.config/wezterm" "wezterm"
 backup_dir "$HOME/.config/karabiner" "karabiner"
 backup_dir "$HOME/.config/aerospace" "aerospace"

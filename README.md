@@ -1,47 +1,62 @@
 # Dotfiles
 
-Personal macOS dotfiles. The repo lives wherever you clone it; `make install` symlinks the tracked files into `$HOME`.
+Personal macOS setup: nix-darwin, home-manager, and nix-homebrew. The flake host is `mac`.
 
-XDG apps live under `config/` and map 1:1 onto `~/.config`. Shell and IdeaVim files stay at the repo root.
+Clone this repo anywhere; `./rebuild.sh` points `~/.dotfiles` at it and applies the flake. home-manager generates `~/.zshrc` (Starship, not Oh My Zsh). Aliases live in `zsh/aliases.nix`; Git helper functions live in `zsh/git-functions.nix`. XDG apps live under `config/` and map 1:1 onto `~/.config` as out-of-store symlinks.
 
 ## Prerequisites
 
 - Git
-- [Oh My Zsh](https://ohmyz.sh/) at `~/.oh-my-zsh` (`zshrc` sets `ZSH_CUSTOM` at this repo; `~/.oh-my-zsh/custom` is left alone so `omz update` works)
-- Homebrew (for `brew shellenv` in `zshrc`)
+- [Determinate Nix](https://docs.determinate.systems/determinate-nix/) — nix-darwin is applied with `./rebuild.sh`
 
-Install also downloads [0xProto Nerd Font](https://github.com/ryanoasis/nerd-fonts) into `~/Library/Fonts`.
+`make install` also downloads [0xProto Nerd Font](https://github.com/ryanoasis/nerd-fonts) into `~/Library/Fonts`.
 
 ## Install
 
 ```bash
 git clone git@github.com:bhargavms/dotfiles.git
 cd dotfiles
-make install-with-backup
+./rebuild.sh
+exec zsh -l
+make install-with-backup   # fonts; optional if home-manager already linked configs
 ```
 
-`make install` runs `git submodule update --init --recursive`, then creates the symlinks below. `link_dir` **replaces** the target path (`rm -rf`), so use `install-with-backup` on a machine that already has configs.
+`./rebuild.sh` creates `~/.dotfiles` and runs `darwin-rebuild switch --flake ~/.dotfiles#mac`. That installs Homebrew packages from `configuration.nix`, Nix packages and the shell from `home.nix`, and links the configs below.
 
-After the first shell with Powerlevel10k, run `p10k configure`. `~/.p10k.zsh` is not tracked here.
+`make install` is the non-Nix linker for those same paths plus fonts. `link_dir` **replaces** the target path (`rm -rf`), so use `install-with-backup` on a machine that already has configs.
+
+## What Nix owns
+
+| File | Role |
+|------|------|
+| `flake.nix` | Inputs (nixpkgs 26.05, nix-darwin, home-manager, nix-homebrew) and `darwinConfigurations.mac` |
+| `configuration.nix` | macOS defaults, Homebrew taps/formulae/casks (`cleanup = zap`) |
+| `home.nix` | User packages (nvim, Go, Java, LSPs, formatters), `programs.zsh`, Starship, config links |
+| `zsh/aliases.nix` | `shellAliases` (git, gradle, codex, …) |
+| `zsh/git-functions.nix` | `initContent` helpers: `git_main_branch`, `gpur`, `gCleanB`, `gsquash` |
+
+Neovim **config** is not in this repo (see below). The `neovim` package and language servers/formatters are.
 
 ## What gets linked
 
+home-manager (`mkOutOfStoreSymlink`) and `make install` both point these at the repo:
+
 | Source | Target |
 |--------|--------|
-| `zshrc` | `~/.zshrc` |
 | `ideavimrc` | `~/.ideavimrc` |
 | `config/wezterm/` | `~/.config/wezterm` |
 | `config/karabiner/` | `~/.config/karabiner` |
 | `config/aerospace/` | `~/.config/aerospace` |
 | `config/gh/config.yml` | `~/.config/gh/config.yml` |
 
+Edit them in the repo; `~/.config` is a live symlink, not a Nix store copy.
+
 ## Not managed
 
-- **`~/.oh-my-zsh/custom`** — Oh My Zsh's own tree. Aliases, powerlevel10k, and zsh plugins load via `ZSH_CUSTOM` → `oh-my-zsh-custom/` in this repo. Replacing `custom/` with a symlink makes `omz update` fail (`custom/example.zsh` is beyond a symbolic link).
 - **Neovim** — separate repo at [`my-nvim`](https://github.com/bhargavms/my-nvim); clone it to `~/.config/nvim`. Install refuses to touch that path.
 - **`~/.config/gh/hosts.yml`** — local GitHub CLI auth; only `config.yml` is linked.
-- Caches and app state under `~/.config` (qBittorrent, tfenv, and similar).
-- `~/.p10k.zsh`, `~/.gitconfig`, secrets (`TFE_TOKEN`, Terraform credentials, SSH keys).
+- Caches and app state under `~/.config` (qBittorrent and similar).
+- `~/.gitconfig`, secrets (`TFE_TOKEN`, Terraform credentials, SSH keys).
 
 Karabiner automatic backups and WezTerm `workspace-states/` are gitignored if they appear next to the tracked files.
 
@@ -49,28 +64,28 @@ Karabiner automatic backups and WezTerm `workspace-states/` are gitignored if th
 
 ```
 .
-├── zshrc
+├── flake.nix
+├── flake.lock
+├── configuration.nix
+├── home.nix
+├── rebuild.sh
+├── zsh/
+│   ├── aliases.nix
+│   └── git-functions.nix
 ├── ideavimrc
 ├── config/
 │   ├── wezterm/
 │   ├── karabiner/karabiner.json
 │   ├── aerospace/aerospace.toml
 │   └── gh/config.yml
-├── oh-my-zsh-custom/          # ZSH_CUSTOM: aliases + plugin/theme submodules
 └── scripts/
 ```
-
-Third-party Oh My Zsh extras are git submodules:
-
-- [powerlevel10k](https://github.com/romkatv/powerlevel10k)
-- [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
-- [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
 
 ## Make targets
 
 | Target | What it does |
 |--------|----------------|
-| `make install` | Init submodules, symlink, install fonts |
+| `make install` | Symlink configs, install fonts |
 | `make backup` | Copy existing non-symlink files into `backup/<timestamp>/` |
 | `make install-with-backup` | Backup, then install |
 | `make status` | Show which targets are symlinks into this repo |
@@ -79,4 +94,10 @@ Third-party Oh My Zsh extras are git submodules:
 
 ## Day to day
 
-Edit files in this repo or under `~` / `~/.config` — they are the same files, not copies. WezTerm, Karabiner, and the shell still read the usual home paths; Git sees the changes in this repo. Commit here. On another machine, clone and `make install-with-backup`.
+- **Shell aliases** — edit `zsh/aliases.nix`.
+- **Git functions** — edit `zsh/git-functions.nix`.
+- **Prompt / packages / env** — edit `home.nix`.
+- **Homebrew / macOS defaults** — edit `configuration.nix`.
+- **WezTerm, Karabiner, AeroSpace, IdeaVim** — edit in this repo (or via the live `~/.config` / `~/.ideavimrc` links).
+
+Apply Nix changes with `./rebuild.sh`, then `exec zsh -l`. On another machine: clone, `./rebuild.sh`, and `make install-with-backup` for fonts.
