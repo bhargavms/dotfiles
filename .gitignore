@@ -240,6 +240,9 @@ config/karabiner/automatic_backups/
 # WezTerm workspace session state
 config/wezterm/workspace-states/
 
+# AeroSpace → WezTerm bottom strip geometry (written by wezterm-dock.sh)
+config/aerospace/.wezterm-dock
+
 # =============================================================================
 # CUSTOM EXCEPTIONS
 # =============================================================================
