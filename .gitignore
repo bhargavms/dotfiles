@@ -237,9 +237,6 @@ config/gh/hosts.yml
 # Karabiner writes these next to karabiner.json
 config/karabiner/automatic_backups/
 
-# WezTerm workspace session state
-config/wezterm/workspace-states/
-
 # AeroSpace → WezTerm bottom strip geometry (written by wezterm-dock.sh)
 config/aerospace/.wezterm-dock
 

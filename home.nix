@@ -167,4 +167,7 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/aerospace";
   home.file.".config/gh/config.yml".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/gh/config.yml";
+  # File only — herdr keeps sockets/logs/session.json beside config.toml.
+  home.file.".config/herdr/config.toml".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/herdr/config.toml";
 }

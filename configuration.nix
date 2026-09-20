@@ -63,6 +63,7 @@
       "ghostscript"
       "gitleaks"
       "gnupg"
+      "herdr"
       "hugo"
       "kubernetes-cli"
       "lefthook"
