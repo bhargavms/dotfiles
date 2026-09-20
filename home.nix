@@ -1,4 +1,4 @@
-{ config, pkgs, lib, user, ... }:
+{ config, pkgs, user, ... }:
 
 let
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
@@ -167,22 +167,4 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/aerospace";
   home.file.".config/gh/config.yml".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/gh/config.yml";
-
-  home.activation.installPreCommit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if [ -d "${dotfiles}/.git" ]; then
-      pc=""
-      if command -v pre-commit >/dev/null; then
-        pc="$(command -v pre-commit)"
-      elif [ -x /opt/homebrew/bin/pre-commit ]; then
-        pc=/opt/homebrew/bin/pre-commit
-      fi
-      if [ -n "$pc" ]; then
-        (cd "${dotfiles}" && $DRY_RUN_CMD "$pc" install)
-      elif [ -f "${dotfiles}/.githooks/pre-commit" ]; then
-        $DRY_RUN_CMD mkdir -p "${dotfiles}/.git/hooks"
-        $DRY_RUN_CMD cp "${dotfiles}/.githooks/pre-commit" "${dotfiles}/.git/hooks/pre-commit"
-        $DRY_RUN_CMD chmod +x "${dotfiles}/.git/hooks/pre-commit"
-      fi
-    fi
-  '';
 }

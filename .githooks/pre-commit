@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tracked git hook. `./rebuild.sh` runs `pre-commit install` when the formula exists.
+# Tracked git hook. After ./rebuild.sh: pre-commit install
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"

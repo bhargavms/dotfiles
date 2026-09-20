@@ -26,10 +26,10 @@ exec zsh -l
 |------|------|
 | `flake.nix` | Inputs (nixpkgs 26.05, nix-darwin, home-manager, nix-homebrew) and `darwinConfigurations.mac` |
 | `configuration.nix` | macOS defaults, [0xProto Nerd Font](https://github.com/ryanoasis/nerd-fonts), Homebrew taps/formulae/casks (`cleanup = zap`) |
-| `home.nix` | User packages (nvim, Go, Java, LSPs, formatters), `programs.zsh`, Starship, config links, pre-commit hook install |
+| `home.nix` | User packages (nvim, Go, Java, LSPs, formatters), `programs.zsh`, Starship, config links |
 | `zsh/aliases.nix` | `shellAliases` (git, gradle, codex, …) |
 | `zsh/git-functions.nix` | `initContent` helpers: `git_main_branch`, `gpur`, `gCleanB`, `gsquash` |
-| `.pre-commit-config.yaml` | Repo git hooks; `pre-commit` is a Homebrew formula |
+| `.pre-commit-config.yaml` | Repo git hooks; `pre-commit` is a Homebrew formula. Run `pre-commit install` once in this clone. |
 
 Neovim **config** is not in this repo (see below). The `neovim` package and language servers/formatters are.
 
