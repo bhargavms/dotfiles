@@ -12,9 +12,9 @@ agent_panel_sort = "spaces"
 name = "rose-pine"
 auto_switch = false
 
-# Kunchen's keybinds (https://github.com/kunchenguid/dotfiles)
+# Kunchen's keybinds (https://github.com/kunchenguid/dotfiles), prefix swapped to ctrl+space
 [keys]
-prefix = "ctrl+b"
+prefix = "ctrl+space"
 focus_pane_left  = "prefix+h"
 focus_pane_down  = "prefix+j"
 focus_pane_up    = "prefix+k"
@@ -25,4 +25,14 @@ new_tab   = "prefix+c"
 close_tab = "prefix+ampersand"
 workspace_picker = "prefix+w"
 goto             = "prefix+g"
+previous_workspace = "prefix+["
+next_workspace     = "prefix+]"
+switch_workspace   = "prefix+shift+1..9"  # tabs keep prefix+1..9
+# Navigate mode (prefix+w): j/k move spaces; h/l + ctrl+j/k move panes
+navigate_workspace_up   = ["k", "up"]
+navigate_workspace_down = ["j", "down"]
+navigate_pane_left  = "h"
+navigate_pane_down  = "ctrl+j"
+navigate_pane_up    = "ctrl+k"
+navigate_pane_right = "l"
 copy_mode  = "prefix+y"  # herdr's copy-mode entry key; copy-mode's own internal keys (v/space select, y/Enter copy, q/Esc cancel) aren't configurable
