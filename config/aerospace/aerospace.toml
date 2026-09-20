@@ -63,8 +63,8 @@ ctrl-alt-slash = ['layout tiles', 'layout horizontal vertical']
 ctrl-alt-g = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/tile-grid.sh'
 ctrl-alt-o = 'layout floating'
 
-# Fullscreen
-ctrl-alt-f = 'fullscreen'
+# Fullscreen (WezTerm dock toggles strip <-> full)
+ctrl-alt-f = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/fullscreen.sh'
 
 # Focus
 ctrl-alt-h = 'focus left'

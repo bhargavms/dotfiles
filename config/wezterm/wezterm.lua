@@ -156,6 +156,9 @@ local function apply_dock(window)
   end
   local data = f:read('*a')
   f:close()
+  if data:match('^full') then
+    return
+  end
   local x, y, w, h = data:match('^(%S+)%s+(%S+)%s+(%S+)%s+(%S+)')
   if not x then
     return
@@ -181,6 +184,9 @@ local function apply_dock(window)
   local pw = w * scale
 
   local dims = gui:get_dimensions()
+  if dims and dims.is_full_screen then
+    return
+  end
   if last_applied == data and dims and math.abs(dims.pixel_height - inner_h) < 48 then
     return
   end

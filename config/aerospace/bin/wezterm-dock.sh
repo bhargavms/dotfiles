@@ -75,6 +75,7 @@ hide_wezterm() {
   local id
   id="$(wezterm_id || true)"
   if [[ -n "${id:-}" ]]; then
+    aerospace fullscreen off --window-id "$id" || true
     aerospace move-node-to-workspace --window-id "$id" scratch || true
   fi
   rm -f "${HOME}/.config/aerospace/.wezterm-dock"
@@ -87,4 +88,39 @@ wezterm_is_shown() {
   [[ -z "${id:-}" ]] && return 1
   ws="$(wezterm_workspace "$id")"
   [[ -n "$ws" && "$ws" != "scratch" ]]
+}
+
+wezterm_is_full() {
+  local id
+  id="$(wezterm_id || true)"
+  [[ -z "${id:-}" ]] && return 1
+  if [[ -f "${HOME}/.config/aerospace/.wezterm-dock" ]] \
+    && [[ "$(head -n1 "${HOME}/.config/aerospace/.wezterm-dock")" == full* ]]; then
+    return 0
+  fi
+  aerospace list-windows --all --format '%{window-id} %{window-is-fullscreen}' \
+    | awk -v wid="$id" '$1 == wid && $2 == "true" { found=1 } END { exit !found }'
+}
+
+toggle_wezterm_fullscreen() {
+  local id
+  id="$(wezterm_id || true)"
+  if [[ -z "${id:-}" ]]; then
+    show_wezterm
+    id="$(wezterm_id || true)"
+  fi
+  [[ -z "${id:-}" ]] && exit 1
+
+  if wezterm_is_full; then
+    aerospace fullscreen off --window-id "$id" || true
+    show_wezterm
+    return
+  fi
+
+  printf 'full %s\n' "$$" > "${HOME}/.config/aerospace/.wezterm-dock"
+  set_bottom_gap "$REST_GAP"
+  aerospace move-node-to-workspace --window-id "$id" "$(aerospace list-workspaces --focused)" || true
+  aerospace layout floating --window-id "$id" || true
+  aerospace fullscreen on --window-id "$id" || true
+  aerospace focus --window-id "$id" || true
 }

@@ -18,4 +18,8 @@ cur="$(wezterm_workspace "$id")"
 
 aerospace move-node-to-workspace --window-id "$id" "$ws" || true
 aerospace layout floating --window-id "$id" || true
-place_wezterm || true
+if wezterm_is_full; then
+  aerospace fullscreen on --window-id "$id" || true
+else
+  place_wezterm || true
+fi
