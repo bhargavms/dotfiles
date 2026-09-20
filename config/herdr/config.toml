@@ -9,7 +9,7 @@ status_indicators = "symbols"
 agent_panel_sort = "spaces"
 
 [theme]
-name = "catppuccin"
+name = "rose-pine"
 auto_switch = false
 
 # Kunchen's keybinds (https://github.com/kunchenguid/dotfiles)
