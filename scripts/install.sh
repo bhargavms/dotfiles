@@ -56,4 +56,16 @@ bash "$SCRIPT_DIR/install_fonts.sh"
 ## install jetbrains/android studio configurations
 link_file "$DOTFILES_DIR/ideavimrc" "$HOME/.ideavimrc"
 
+if [ -d "$DOTFILES_DIR/.git" ]; then
+    if command -v pre-commit >/dev/null; then
+        git -C "$DOTFILES_DIR" pre-commit install
+        echo "Installed pre-commit git hook"
+    else
+        mkdir -p "$DOTFILES_DIR/.git/hooks"
+        cp "$DOTFILES_DIR/.githooks/pre-commit" "$DOTFILES_DIR/.git/hooks/pre-commit"
+        chmod +x "$DOTFILES_DIR/.git/hooks/pre-commit"
+        echo "Copied .githooks/pre-commit (install the pre-commit formula with ./rebuild.sh)"
+    fi
+fi
+
 echo "Installation Complete!"

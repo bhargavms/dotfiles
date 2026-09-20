@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Tracked git hook. Prefer `pre-commit install` (Homebrew formula) when available.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$HERE/../.." && pwd)"
+if [[ "$(basename "$HERE")" != "hooks" ]]; then
+  ROOT="$(cd "$HERE/.." && pwd)"
+fi
+
+if ! command -v pre-commit >/dev/null; then
+  echo 'pre-commit is not installed. Run ./rebuild.sh, then: pre-commit install' >&2
+  exit 1
+fi
+
+exec pre-commit hook-impl \
+  --config="$ROOT/.pre-commit-config.yaml" \
+  --hook-type=pre-commit \
+  --hook-dir="$HERE" \
+  -- "$@"
