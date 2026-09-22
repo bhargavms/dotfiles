@@ -7,7 +7,6 @@ Personal WezTerm config (part of [dotfiles](https://github.com/bhargavms/dotfile
 - Login zsh, Rose Pine Moon / Gruvbox Light by system appearance
 - 0xProto Nerd Font, single-tab bar hidden
 - **Pane focus:** `Ctrl+Shift+h/j/k/l`
-- **AeroSpace bottom strip:** reads `~/.config/aerospace/.wezterm-dock`
 
 ## Tabs / splits / workspaces
 

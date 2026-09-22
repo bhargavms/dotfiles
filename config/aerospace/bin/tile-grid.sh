@@ -7,7 +7,7 @@ set -u
 
 is_excluded() {
   case "$1" in
-    com.github.wez.wezterm|com.apple.systempreferences|com.apple.AppStore) return 0 ;;
+    com.apple.systempreferences|com.apple.AppStore) return 0 ;;
   esac
   return 1
 }

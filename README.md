@@ -9,6 +9,17 @@ Clone this repo anywhere; `./rebuild.sh` points `~/.dotfiles` at it and applies 
 - Git
 - [Determinate Nix](https://docs.determinate.systems/determinate-nix/) — nix-darwin is applied with `./rebuild.sh`
 
+### Optional: Pi binary caches
+
+Nix is managed by Determinate (`nix.enable = false` in darwin), so caches are not set from this flake. To avoid building [Pi](https://pi.dev/) from source, add these lines once to `/etc/nix/nix.custom.conf` (sudo), then restart the Nix daemon if needed:
+
+```
+extra-substituters = https://pi.cachix.org https://nix-community.cachix.org
+extra-trusted-public-keys = pi.cachix.org-1:lGeoGJaZ5ZDabuRzkcD5EBTNnDM4HJ1vqeOxlWk1Flk= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+```
+
+Do not use `--accept-flake-config` for this.
+
 ## Install
 
 ```bash
@@ -24,9 +35,9 @@ exec zsh -l
 
 | File | Role |
 |------|------|
-| `flake.nix` | Inputs (nixpkgs 26.05, nix-darwin, home-manager, nix-homebrew) and `darwinConfigurations.mac` |
+| `flake.nix` | Inputs (nixpkgs 26.05, nix-darwin, home-manager, nix-homebrew, [pi.nix](https://github.com/lukasl-dev/pi.nix)) and `darwinConfigurations.mac` |
 | `configuration.nix` | macOS defaults, [0xProto Nerd Font](https://github.com/ryanoasis/nerd-fonts), Homebrew taps/formulae/casks (`cleanup = zap`) |
-| `home.nix` | User packages (nvim, Go, Java, LSPs, formatters), `programs.zsh`, Starship, config links |
+| `home.nix` | User packages (nvim, Go, Java, Rust, LSPs, formatters), Pi coding agent (`programs.pi.coding-agent`), `programs.zsh`, Starship, config links |
 | `zsh/aliases.nix` | `shellAliases` (git, gradle, codex, …) |
 | `zsh/git-functions.nix` | `initContent` helpers: `git_main_branch`, `gpur`, `gCleanB`, `gsquash` |
 | `.pre-commit-config.yaml` | Repo git hooks; `pre-commit` is a Homebrew formula. Run `pre-commit install` once in this clone. |
@@ -53,6 +64,7 @@ Edit them in the repo; `~/.config` is a live symlink, not a Nix store copy.
 - **`~/.config/gh/hosts.yml`** — local GitHub CLI auth; only `config.yml` is linked.
 - Caches and app state under `~/.config` (qBittorrent and similar).
 - `~/.gitconfig`, secrets (`TFE_TOKEN`, Terraform credentials, SSH keys).
+- **Pi provider API keys / auth** — configure interactively with `pi` after install; agent state lives under `~/.pi/agent` (not in this repo).
 
 Karabiner automatic backups and WezTerm `workspace-states/` are gitignored if they appear next to the tracked files.
 
@@ -82,7 +94,7 @@ Karabiner automatic backups and WezTerm `workspace-states/` are gitignored if th
 
 - **Shell aliases** — edit `zsh/aliases.nix`.
 - **Git functions** — edit `zsh/git-functions.nix`.
-- **Prompt / packages / env** — edit `home.nix`.
+- **Prompt / packages / env / Pi** — edit `home.nix` (`programs.pi.coding-agent` for rules, skills, settings).
 - **Homebrew / macOS defaults / fonts** — edit `configuration.nix`.
 - **WezTerm, Karabiner, AeroSpace, IdeaVim** — edit in this repo (or via the live `~/.config` / `~/.ideavimrc` links).
 

@@ -1,13 +1,30 @@
-{ config, pkgs, user, ... }:
+{ config, pkgs, user, inputs, ... }:
 
 let
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+  fenix = inputs.fenix.packages.${pkgs.system};
+  rustToolchain = fenix.stable.withComponents [
+    "cargo"
+    "clippy"
+    "rust-src"
+    "rustc"
+    "rustfmt"
+  ];
 in
 
 {
+  imports = [ inputs.pi.homeModules.default ];
+
   home.username = user;
   home.homeDirectory = "/Users/${user}";
   home.stateVersion = "24.11";
+
+  programs.pi.coding-agent = {
+    enable = true;
+    environment.PI_CODING_AGENT_DIR.value =
+      "${config.home.homeDirectory}/.pi/agent";
+  };
+
   home.packages = with pkgs; [
     ripgrep
     jq
@@ -47,6 +64,8 @@ in
     clang-tools
     yamlfix
     beautysh
+    rustToolchain
+    fenix.rust-analyzer
   ];
   home.sessionVariables = {
     LANG = "en_US.UTF-8";
@@ -60,6 +79,7 @@ in
     PKG_CONFIG_PATH = "${config.home.homeDirectory}/local/lib/pkgconfig";
     LUA_PATH = "${config.home.homeDirectory}/.local/share/lua/5.4.6/?.lua;${config.home.homeDirectory}/.local/share/lua/5.4.6/?/init.lua;";
     LUA_CPATH = "${config.home.homeDirectory}/.local/lib/lua/5.4.6/?.so;";
+    RUST_SRC_PATH = "${fenix.stable.rust-src}/lib/rustlib/src/rust/library";
   };
   home.sessionPath = [
     "/etc/profiles/per-user/${config.home.username}/bin"
@@ -137,7 +157,6 @@ in
       elif [[ -x /usr/local/bin/brew ]]; then
         eval "$(/usr/local/bin/brew shellenv)"
       fi
-      [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
     '';
     shellAliases = import ./zsh/aliases.nix;
   };

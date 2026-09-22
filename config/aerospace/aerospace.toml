@@ -23,12 +23,6 @@ default-root-container-orientation = 'horizontal'
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 automatically-unhide-macos-hidden-apps = true
 
-# WezTerm is floating and follows you to every workspace (AeroSpace has no real sticky)
-exec-on-workspace-change = [
-    '/bin/bash',
-    '/Users/bhargav/.config/aerospace/bin/wezterm-follow.sh',
-]
-
 persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'scratch']
 
 key-mapping.preset = 'qwerty'
@@ -36,7 +30,6 @@ key-mapping.preset = 'qwerty'
 gaps.inner.horizontal = 8
 gaps.inner.vertical = 8
 gaps.outer.left = 8
-# rewritten by wezterm-toggle.sh while the bottom strip is open
 gaps.outer.bottom = 8
 gaps.outer.top = 8
 gaps.outer.right = 8
@@ -49,7 +42,6 @@ on-window-detected = [
     { if = 'test %{app-bundle-id} = com.valvesoftware.steam', run = 'layout floating' },
     { if = 'test %{app-bundle-id} = net.battle.app', run = 'layout floating' },
     { if = 'test %{app-name} ~= "(?i)world of warcraft|battle.net|steam"', run = 'layout floating' },
-    { if = 'test %{app-bundle-id} = com.github.wez.wezterm', run = 'layout floating' },
 ]
 
 [mode.main.binding]
@@ -63,8 +55,8 @@ ctrl-alt-slash = ['layout tiles', 'layout horizontal vertical']
 ctrl-alt-g = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/tile-grid.sh'
 ctrl-alt-o = 'layout floating'
 
-# Fullscreen (WezTerm dock toggles strip <-> full)
-ctrl-alt-f = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/fullscreen.sh'
+# Fullscreen
+ctrl-alt-f = 'fullscreen'
 
 # Focus
 ctrl-alt-h = 'focus left'
@@ -118,15 +110,12 @@ ctrl-alt-s = 'workspace scratch'
 ctrl-alt-shift-s = 'move-node-to-workspace scratch'
 ctrl-alt-shift-backtick = 'move-node-to-workspace scratch'
 
-# Shared floating WezTerm — Super+` to show, again to hide
-ctrl-alt-backtick = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/wezterm-toggle.sh'
-
 # Cycle windows on this workspace (Omarchy Alt+Tab)
 alt-tab = 'focus --boundaries-action wrap-around-the-workspace dfs-next'
 alt-shift-tab = 'focus --boundaries-action wrap-around-the-workspace dfs-prev'
 
 # Launchers
-ctrl-alt-enter = 'exec-and-forget /Users/bhargav/.config/aerospace/bin/wezterm-toggle.sh'
+ctrl-alt-backtick = 'exec-and-forget open -na WezTerm'
 ctrl-alt-shift-enter = 'exec-and-forget open -na Arc'
 ctrl-alt-shift-f = 'exec-and-forget open -a Finder'
 ctrl-alt-shift-n = 'exec-and-forget open -na Cursor'
