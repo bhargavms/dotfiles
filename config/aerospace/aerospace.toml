@@ -34,7 +34,8 @@ gaps.outer.bottom = 8
 gaps.outer.top = 8
 gaps.outer.right = 8
 
-# Float settings, VPN, and games so they are not forced into tiles
+# Float settings, VPN, and games so they are not forced into tiles.
+# Catch-all re-runs tile-grid (debounced) so the layout self-heals without Ctrl+Alt+G.
 on-window-detected = [
     { if = 'test %{app-bundle-id} = com.apple.systempreferences', run = 'layout floating' },
     { if = 'test %{app-bundle-id} = com.apple.AppStore', run = 'layout floating' },
@@ -42,6 +43,7 @@ on-window-detected = [
     { if = 'test %{app-bundle-id} = com.valvesoftware.steam', run = 'layout floating' },
     { if = 'test %{app-bundle-id} = net.battle.app', run = 'layout floating' },
     { if = 'test %{app-name} ~= "(?i)world of warcraft|battle.net|steam"', run = 'layout floating' },
+    { if = 'true', run = 'exec-and-forget env AEROSPACE_TILE_GRID_DEBOUNCE=1 /Users/bhargav/.config/aerospace/bin/tile-grid.sh' },
 ]
 
 [mode.main.binding]

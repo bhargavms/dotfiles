@@ -3,7 +3,16 @@
 #   top-left | top-right
 #   ---------+----------
 #   bot-left | bot-right
+#
+# Set AEROSPACE_TILE_GRID_DEBOUNCE=1 (on-window-detected) to coalesce rapid triggers.
 set -u
+
+if [[ "${AEROSPACE_TILE_GRID_DEBOUNCE:-}" == 1 ]]; then
+  stamp="${TMPDIR:-/tmp}/aerospace-tile-grid.stamp"
+  echo $$ >"$stamp"
+  sleep 0.4
+  [[ "$(cat "$stamp" 2>/dev/null || true)" == "$$" ]] || exit 0
+fi
 
 is_excluded() {
   case "$1" in
