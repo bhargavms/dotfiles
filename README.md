@@ -24,14 +24,40 @@ exec zsh -l
 
 | File | Role |
 |------|------|
-| `flake.nix` | Inputs (nixpkgs 26.05, nix-darwin, home-manager, nix-homebrew) and `darwinConfigurations.mac` |
+| `flake.nix` | Inputs (nixpkgs 26.05, nix-darwin, home-manager, nix-homebrew, Oh My Pi) and `darwinConfigurations.mac` |
 | `configuration.nix` | macOS defaults, [0xProto Nerd Font](https://github.com/ryanoasis/nerd-fonts), Homebrew taps/formulae/casks (`cleanup = zap`) — including `rust`, `rust-analyzer`, `pi-coding-agent` |
-| `home.nix` | User packages (nvim, Go, Java, LSPs, formatters), `programs.zsh`, Starship, config links |
+| `home.nix` | User packages (nvim, Go, Java, LSPs, formatters), `programs.omp`, `programs.zsh`, Starship, config links |
 | `zsh/aliases.nix` | `shellAliases` (git, gradle, codex, …) |
 | `zsh/git-functions.nix` | `initContent` helpers: `git_main_branch`, `gpur`, `gCleanB`, `gsquash` |
 | `.pre-commit-config.yaml` | Repo git hooks; `pre-commit` is a Homebrew formula. Run `pre-commit install` once in this clone. |
 
 Neovim **config** is not in this repo (see below). The `neovim` package and language servers/formatters are.
+
+## Oh My Pi
+
+[Oh My Pi](https://github.com/can1357/oh-my-pi) (`omp`) is installed through its official Nix flake and Home Manager module. The release is selected in `flake.nix` and its source and build dependencies are pinned in `flake.lock`.
+
+The first build downloads the pinned toolchains and compiles native code, which can take several minutes. Subsequent rebuilds reuse the package from the Nix store while its inputs are unchanged.
+
+```bash
+./rebuild.sh
+exec zsh -l
+omp --version
+omp setup
+```
+
+Run `omp` in a project to start a session; `/login` connects a provider account. On another Apple Silicon Mac, clone this repo and run `./rebuild.sh` to install the same version, then configure authentication there. The current host configuration uses the username `bhargav` and platform `aarch64-darwin`; change `user` in `flake.nix` and `nixpkgs.hostPlatform` in `configuration.nix` for a different username or an Intel Mac.
+
+Preferences and agent state stay writable under `~/.omp/agent`. To make non-secret preferences portable, add `programs.omp.settings` in `home.nix`. When set, the upstream module replaces `~/.omp/agent/config.yml` with those declared settings on every rebuild, overwriting changes made through `/settings`. Keep credentials out of Nix and Git.
+
+To upgrade, change the release tag in `inputs.omp.url`, then run:
+
+```bash
+nix flake update omp
+./rebuild.sh
+```
+
+The existing Homebrew `pi-coding-agent` provides the separate `pi` command; Oh My Pi uses `omp`.
 
 ## What gets linked
 
@@ -54,6 +80,7 @@ Edit them in the repo; `~/.config` is a live symlink, not a Nix store copy.
 - Caches and app state under `~/.config` (qBittorrent and similar).
 - `~/.gitconfig`, secrets (`TFE_TOKEN`, Terraform credentials, SSH keys).
 - **Pi provider API keys / auth** — configure interactively with `pi` after install; agent state lives under `~/.pi/agent` (not in this repo).
+- **Oh My Pi provider API keys / auth and runtime settings** — configure with `omp setup` or `/login`; local state lives under `~/.omp/agent` (not in this repo).
 
 Karabiner automatic backups and WezTerm `workspace-states/` are gitignored if they appear next to the tracked files.
 

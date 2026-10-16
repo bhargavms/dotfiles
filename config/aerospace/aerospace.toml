@@ -5,7 +5,9 @@
 config-version = 2
 
 after-startup-command = [
-    'exec-and-forget /opt/homebrew/opt/borders/bin/borders active_color=0xff7dc4e4 inactive_color=0xff45475a width=4.0 hidpi=on'
+    'exec-and-forget /opt/homebrew/opt/borders/bin/borders active_color=0xff7dc4e4 inactive_color=0xff45475a width=4.0 hidpi=on',
+    # AeroSpace has no on-window-closed; watch focus-changed for window-count drops and retile.
+    'exec-and-forget /Users/bhargav/.config/aerospace/bin/layout-watch.sh',
 ]
 
 start-at-login = true
@@ -47,9 +49,9 @@ on-window-detected = [
 ]
 
 [mode.main.binding]
-# Close
-ctrl-alt-w = 'close'
-ctrl-alt-q = 'close'
+# Close (then retile — on-window-detected only fires on open)
+ctrl-alt-w = ['close', 'exec-and-forget env AEROSPACE_TILE_GRID_DEBOUNCE=1 /Users/bhargav/.config/aerospace/bin/tile-grid.sh']
+ctrl-alt-q = ['close', 'exec-and-forget env AEROSPACE_TILE_GRID_DEBOUNCE=1 /Users/bhargav/.config/aerospace/bin/tile-grid.sh']
 
 # Tiling / floating / layout
 ctrl-alt-t = 'layout floating tiling'
@@ -139,7 +141,7 @@ ctrl-alt-semicolon = 'mode service'
 esc = ['reload-config', 'mode main']
 r = ['flatten-workspace-tree', 'mode main']
 f = ['layout floating tiling', 'mode main']
-backspace = ['close-all-windows-but-current', 'mode main']
+backspace = ['close-all-windows-but-current', 'exec-and-forget env AEROSPACE_TILE_GRID_DEBOUNCE=1 /Users/bhargav/.config/aerospace/bin/tile-grid.sh', 'mode main']
 h = ['join-with left', 'mode main']
 j = ['join-with down', 'mode main']
 k = ['join-with up', 'mode main']

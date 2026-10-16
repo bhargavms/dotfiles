@@ -70,6 +70,8 @@ in
     "${config.home.homeDirectory}/go/bin"
   ];
 
+  programs.omp.enable = true;
+
   programs.zsh = {
     enable = true;
     autosuggestion.enable = true;

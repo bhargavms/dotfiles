@@ -12,9 +12,12 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+
+    # Keep OMP's own pinned toolchains; it builds against nixpkgs unstable.
+    omp.url = "github:can1357/oh-my-pi/v18.11.1";
   };
 
-  outputs = inputs@{ self, nix-darwin, nix-homebrew, home-manager, nixpkgs }:
+  outputs = inputs@{ self, nix-darwin, nix-homebrew, home-manager, nixpkgs, omp }:
     let
       user = "bhargav";
     in
@@ -29,6 +32,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "bak";
+            home-manager.sharedModules = [ omp.homeManagerModules.default ];
             home-manager.extraSpecialArgs = { inherit user; };
             home-manager.users.${user} = import ./home.nix;
           }

@@ -60,6 +60,7 @@
       "fd"
       "fzf"
       "gh"
+      "ghidra"
       "ghostscript"
       "gitleaks"
       "gnupg"
@@ -81,10 +82,11 @@
       "jetbrains/utils/kotlin-lsp"
     ];
     casks = [
+      "codex"
       "cursor-cli"
       "karabiner-elements"
-      "aerospace"
       "wezterm"
+      "hopper-disassembler"
     ];
   };
 }
