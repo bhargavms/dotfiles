@@ -2,6 +2,9 @@
 
 let
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+  goTools = import ./packages/go-tools.nix {
+    inherit (pkgs) buildGoModule fetchFromGitHub lib;
+  };
 in
 
 {
@@ -13,12 +16,13 @@ in
     jq
     lazygit
     neovim
-    nodejs
     go
     zulu21
     luarocks
+    lua54Packages.busted
     lua-language-server
     terraform-ls
+    tflint
     yaml-language-server
     kotlin-language-server
     graphql-language-service-cli
@@ -47,28 +51,39 @@ in
     clang-tools
     yamlfmt
     beautysh
-  ];
+    python3Packages.charset-normalizer
+    python3Packages.pymupdf
+    (writeShellApplication {
+      name = "dotfiles-private-settings";
+      runtimeInputs = [ python3 git ];
+      text = ''
+        exec python3 "${./scripts/private_settings.py}" "$@"
+      '';
+    })
+  ] ++ builtins.attrValues goTools;
   home.sessionVariables = {
     LANG = "en_US.UTF-8";
     EDITOR = "nvim";
     JAVA_HOME = pkgs.zulu21.home;
     ANDROID_HOME = "${config.home.homeDirectory}/Library/Android/sdk";
-    PYENV_ROOT = "${config.home.homeDirectory}/.pyenv";
     GOPATH = "${config.home.homeDirectory}/go";
-    LDFLAGS = "-L${config.home.homeDirectory}/local/lib";
-    CPPFLAGS = "-I${config.home.homeDirectory}/local/include";
-    PKG_CONFIG_PATH = "${config.home.homeDirectory}/local/lib/pkgconfig";
-    LUA_PATH = "${config.home.homeDirectory}/.local/share/lua/5.4.6/?.lua;${config.home.homeDirectory}/.local/share/lua/5.4.6/?/init.lua;";
-    LUA_CPATH = "${config.home.homeDirectory}/.local/lib/lua/5.4.6/?.so;";
   };
   home.sessionPath = [
     "/etc/profiles/per-user/${config.home.username}/bin"
     "${config.home.homeDirectory}/bin"
     "${config.home.homeDirectory}/.local/bin"
-    "${config.home.homeDirectory}/.luarocks/bin"
-    "${config.home.homeDirectory}/Library/Android/sdk/platform-tools"
+    "${config.home.sessionVariables.ANDROID_HOME}/platform-tools"
+    "${config.home.sessionVariables.ANDROID_HOME}/emulator"
     "${config.home.homeDirectory}/go/bin"
   ];
+
+  programs.git = {
+    enable = true;
+    lfs = {
+      enable = true;
+      package = null; # Homebrew owns git-lfs.
+    };
+  };
 
   programs.omp.enable = true;
 
@@ -115,21 +130,8 @@ in
         export PATH="$CLOUDSDK_HOME/bin:$PATH"
       fi
 
-      if [[ -d "$ANDROID_HOME/cmdline-tools/latest/bin" ]]; then
-        export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
-      fi
-      if [[ -d "$HOME/Library/Python/3.9/bin" ]]; then
-        export PATH="$HOME/Library/Python/3.9/bin:$PATH"
-      fi
-
-      if command -v rbenv &>/dev/null; then
-        export PATH="$HOME/.rbenv/bin:$PATH"
-        eval "$(rbenv init -)"
-      fi
-      if command -v pyenv &>/dev/null; then
-        export PATH="$PYENV_ROOT/bin:$PATH"
-        eval "$(pyenv init --path)"
-        eval "$(pyenv init -)"
+      if command -v mise &>/dev/null; then
+        eval "$(mise activate zsh)"
       fi
     '' + import ./zsh/git-functions.nix;
     envExtra = ''
@@ -158,16 +160,18 @@ in
 
   home.file.".ideavimrc".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/ideavimrc";
+  home.file.".androidrc".text =
+    "--sdk=${config.home.sessionVariables.ANDROID_HOME}\n";
 
   # Edit-in-place: the real file stays in the repo, ~/.config just points at it.
   home.file.".config/wezterm".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/wezterm";
   home.file.".config/karabiner".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/karabiner";
-  home.file.".config/aerospace".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/aerospace";
   home.file.".config/gh/config.yml".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/gh/config.yml";
+  home.file.".config/mise/config.toml".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/mise/config.toml";
   # File only — herdr keeps sockets/logs/session.json beside config.toml.
   home.file.".config/herdr/config.toml".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/config/herdr/config.toml";

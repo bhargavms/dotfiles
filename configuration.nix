@@ -35,26 +35,23 @@
     autoMigrate = true;
     trust.taps = [
       "derailed/k9s"
-      "felixkratz/formulae"
       "hashicorp/tap"
       "jetbrains/utils"
-      "nikitabobko/tap"
     ];
   };
 
   homebrew = {
     enable = true;
-    onActivation.cleanup = "zap";
+    onActivation.cleanup = "uninstall";
     onActivation.autoUpdate = true;
     onActivation.extraFlags = [ "--force" ];
     taps = [
       "derailed/k9s"
-      "felixkratz/formulae"
       "hashicorp/tap"
       "jetbrains/utils"
-      "nikitabobko/tap"
     ];
     brews = [
+      "actionlint"
       "ansible"
       "cmake"
       "fd"
@@ -62,29 +59,44 @@
       "gh"
       "ghidra"
       "ghostscript"
+      "git-lfs"
       "gitleaks"
       "gnupg"
       "herdr"
       "hugo"
       "kubernetes-cli"
       "lefthook"
+      "llvm@22"
       "luacheck"
+      "mise"
+      "node"
       "pi-coding-agent"
+      "pkgconf"
       "pre-commit"
       "rust"
       "rust-analyzer"
       "tailscale"
+      "terraform-docs"
+      "tesseract"
+      "tree"
       "tree-sitter-cli"
+      "trivy"
       "xcbeautify"
+      "yamllint"
       "derailed/k9s/k9s"
-      "felixkratz/formulae/borders"
       "hashicorp/tap/terraform"
       "jetbrains/utils/kotlin-lsp"
     ];
     casks = [
+      "android-commandlinetools"
+      "antigravity"
+      "arc"
       "codex"
+      "cursor"
       "cursor-cli"
+      "jetbrains-toolbox"
       "karabiner-elements"
+      "visual-studio-code"
       "wezterm"
       "hopper-disassembler"
     ];
